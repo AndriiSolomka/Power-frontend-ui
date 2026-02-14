@@ -2,21 +2,21 @@
 <html lang="ua">
 <head>
   <meta charset="UTF-8">
-  <title>⚠️ УВАГА</title>
+  <title>⚠️ ЧЕЛЕНДЖ</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body { background:#000; font-family:'Comic Sans MS',cursive; overflow:hidden; cursor:none; user-select:none; }
 
     .screen { position:fixed; inset:0; display:none; align-items:center; justify-content:center; flex-direction:column; z-index:100; }
     .screen.active { display:flex; }
-
     .cursor { position:fixed; pointer-events:none; z-index:9999; font-size:36px; transform:translate(-50%,-50%); }
     .scanlines { position:fixed; inset:0; background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0,rgba(0,0,0,.12) 2px,transparent 2px,transparent 4px); pointer-events:none; z-index:998; }
 
-    #progress-bar { position:fixed; top:0; left:0; height:8px; width:0%; background:linear-gradient(90deg,#ff00ff,#00ffff,#ffff00); z-index:999; transition:width .5s; box-shadow:0 0 10px cyan; }
+    #progress-bar { position:fixed; top:0; left:0; height:8px; width:0%; background:linear-gradient(90deg,#f0f,#0ff,#ff0); z-index:999; transition:width .5s; box-shadow:0 0 10px cyan; }
     #level-label  { position:fixed; top:12px; right:16px; color:white; font-size:18px; text-shadow:0 0 10px cyan; z-index:999; }
+    #music-btn    { position:fixed; bottom:16px; right:16px; font-size:22px; background:rgba(0,0,0,.7); border:2px solid #fff; border-radius:10px; padding:8px 14px; cursor:pointer; z-index:999; color:white; display:none; }
 
-    .bg-chaos { position:fixed; inset:0; background:linear-gradient(45deg,#ff00ff,#00ffff,#ff4400,#00ff00,#ffff00); background-size:500%; animation:bgMove .8s infinite; z-index:-2; }
+    .bg-chaos { position:fixed; inset:0; background:linear-gradient(45deg,#f0f,#0ff,#f40,#0f0,#ff0); background-size:500%; animation:bgMove .8s infinite; z-index:-2; }
     @keyframes bgMove { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
 
     .corner { position:fixed; font-size:80px; z-index:10; pointer-events:none; animation:spin 1s linear infinite; }
@@ -24,639 +24,485 @@
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
     .floater { position:fixed; pointer-events:none; z-index:5; animation:floatUp 1.5s ease-out forwards; }
-    @keyframes floatUp { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(-200px) rotate(360deg);opacity:0} }
+    @keyframes floatUp { 0%{transform:translateY(0) rotate(0);opacity:1} 100%{transform:translateY(-220px) rotate(360deg);opacity:0} }
 
     .boom { position:fixed; pointer-events:none; z-index:50; animation:boom .7s forwards; }
     @keyframes boom { 0%{transform:scale(.3);opacity:1} 100%{transform:scale(4);opacity:0} }
 
-    .popup { position:fixed; background:white; border:4px solid red; padding:16px 20px; font-size:18px; font-weight:bold; border-radius:10px; box-shadow:0 0 30px red; z-index:500; animation:popIn .3s ease-out; cursor:pointer; max-width:220px; text-align:center; }
+    .popup { position:fixed; background:white; border:4px solid red; padding:14px 18px; font-size:17px; font-weight:bold; border-radius:10px; box-shadow:0 0 30px red; z-index:500; animation:popIn .3s ease-out; cursor:pointer; max-width:210px; text-align:center; }
     @keyframes popIn { 0%{transform:scale(0) rotate(-15deg)} 70%{transform:scale(1.1) rotate(3deg)} 100%{transform:scale(1)} }
 
     .marquee-wrap { position:fixed; width:100%; pointer-events:none; z-index:20; }
     .mq-top{top:20px} .mq-bottom{bottom:20px}
-    .mq-text   { white-space:nowrap; font-size:26px; font-weight:bold; animation:mqLeft 4s linear infinite; text-shadow:2px 2px #000; }
-    .mq-text-r { white-space:nowrap; font-size:26px; font-weight:bold; animation:mqRight 3s linear infinite; text-shadow:2px 2px #000; }
-    @keyframes mqLeft  { 0%{transform:translateX(100vw)}  100%{transform:translateX(-100%)} }
-    @keyframes mqRight { 0%{transform:translateX(-100%)}  100%{transform:translateX(100vw)} }
+    .mq-text   { white-space:nowrap; font-size:26px; font-weight:bold; animation:mqLeft 5s linear infinite; text-shadow:2px 2px #000; }
+    .mq-text-r { white-space:nowrap; font-size:26px; font-weight:bold; animation:mqRight 4s linear infinite; text-shadow:2px 2px #000; }
+    @keyframes mqLeft  { 0%{transform:translateX(100vw)} 100%{transform:translateX(-100%)} }
+    @keyframes mqRight { 0%{transform:translateX(-100%)} 100%{transform:translateX(100vw)} }
 
-    .card { background:rgba(0,0,0,.8); border:4px solid; border-radius:20px; padding:40px 50px; text-align:center; max-width:700px; width:90%; box-shadow:0 0 60px currentColor; z-index:200; animation:cardIn .4s ease-out; }
+    .card { background:rgba(0,0,0,.82); border:4px solid; border-radius:20px; padding:38px 48px; text-align:center; max-width:720px; width:92%; box-shadow:0 0 60px currentColor; z-index:200; animation:cardIn .4s ease-out; }
     @keyframes cardIn { 0%{transform:scale(.5) rotate(-5deg);opacity:0} 100%{transform:scale(1) rotate(0);opacity:1} }
-    .card h2 { font-size:48px; margin-bottom:16px; text-shadow:0 0 20px currentColor; animation:blink .4s infinite; }
-    .card p   { font-size:22px; color:#fff; line-height:1.6; margin-bottom:28px; }
-    @keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:.6} }
+    .card h2 { font-size:44px; margin-bottom:14px; text-shadow:0 0 20px currentColor; animation:blink .4s infinite; }
+    .card p  { font-size:21px; color:#fff; line-height:1.6; margin-bottom:26px; }
+    @keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:.65} }
 
-    .btn { display:inline-block; padding:16px 40px; font-size:24px; font-weight:bold; font-family:'Comic Sans MS',cursive; border:4px solid; border-radius:12px; cursor:pointer; margin:8px; animation:btnPulse .5s infinite; transition:filter .1s; }
+    .btn { display:inline-block; padding:14px 36px; font-size:22px; font-weight:bold; font-family:'Comic Sans MS',cursive; border:4px solid; border-radius:12px; cursor:pointer; margin:8px; animation:btnPulse .5s infinite; transition:filter .1s; }
     .btn:hover { filter:brightness(1.4); }
     @keyframes btnPulse { 0%{transform:scale(1)} 50%{transform:scale(1.07)} 100%{transform:scale(1)} }
-    .btn-red   { background:#cc0000; color:#fff; border-color:#ff4444; box-shadow:0 0 20px red; }
-    .btn-green { background:#006600; color:#0f0;  border-color:#00ff00; box-shadow:0 0 20px lime; }
-    .btn-blue  { background:#000088; color:#88f;  border-color:#4444ff; box-shadow:0 0 20px blue; }
-    .btn-gold  { background:#886600; color:#ff0;  border-color:#ffcc00; box-shadow:0 0 20px gold; }
+    .btn-red   { background:#c00; color:#fff; border-color:#f44; box-shadow:0 0 20px red; }
+    .btn-green { background:#060; color:#0f0; border-color:#0f0; box-shadow:0 0 20px lime; }
+    .btn-blue  { background:#008; color:#88f; border-color:#44f; box-shadow:0 0 20px blue; }
+    .btn-gold  { background:#860; color:#ff0; border-color:#fc0; box-shadow:0 0 20px gold; }
 
-    /* === ЗВ'ЯЗУ З РІВНЕМ 1 === */
-    #escape-btn { position:fixed; padding:22px 50px; font-size:28px; font-weight:bold; font-family:'Comic Sans MS',cursive; background:#cc0000; color:#fff; border:4px solid #ff4444; border-radius:14px; cursor:pointer; box-shadow:0 0 30px red; animation:btnPulse .4s infinite; z-index:300; transition:left .4s,top .4s; }
-    #catch-counter { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-size:80px; color:white; text-shadow:0 0 30px white; pointer-events:none; z-index:300; animation:blink .3s infinite; }
+    /* LVL1 */
+    #escape-btn { position:fixed; padding:20px 46px; font-size:26px; font-weight:bold; font-family:'Comic Sans MS',cursive; background:#c00; color:#fff; border:4px solid #f44; border-radius:14px; cursor:pointer; box-shadow:0 0 30px red; animation:btnPulse .4s infinite; z-index:300; transition:left .35s,top .35s; }
+    #catch-counter { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-size:76px; color:white; text-shadow:0 0 30px white; pointer-events:none; z-index:300; animation:blink .3s infinite; }
     #lvl1-hint { position:fixed; bottom:60px; left:50%; transform:translateX(-50%); font-size:22px; color:#fff; text-shadow:0 0 10px white; z-index:300; text-align:center; }
 
-    /* === РІВЕНЬ 2: ТЕСТ === */
-    .answers { display:flex; flex-direction:column; gap:12px; width:100%; }
-    .ans-btn { padding:14px 20px; font-size:20px; font-weight:bold; font-family:'Comic Sans MS',cursive; background:#111; color:#fff; border:3px solid #555; border-radius:10px; cursor:pointer; text-align:left; transition:background .15s,border-color .15s; }
-    .ans-btn:hover { background:#333; border-color:#ff0; }
-    .ans-btn.wrong { background:#660000!important; border-color:red!important; animation:shake .3s; }
-    .ans-btn.right { background:#006600!important; border-color:lime!important; }
+    /* LVL2 */
+    .answers { display:flex; flex-direction:column; gap:10px; width:100%; }
+    .ans-btn { padding:13px 18px; font-size:19px; font-weight:bold; font-family:'Comic Sans MS',cursive; background:#111; color:#fff; border:3px solid #555; border-radius:10px; cursor:pointer; text-align:left; transition:background .15s,border-color .15s; }
+    .ans-btn:hover { background:#2a2a2a; border-color:#ff0; }
+    .ans-btn.wrong { background:#600!important; border-color:red!important; animation:shake .3s; }
+    .ans-btn.right { background:#060!important; border-color:lime!important; }
     @keyframes shake { 0%{transform:translateX(0)} 25%{transform:translateX(-10px)} 75%{transform:translateX(10px)} 100%{transform:translateX(0)} }
 
-    /* === РІВЕНЬ 3: ВИЖИВИ === */
-    #survive-timer { font-size:120px; color:white; text-shadow:0 0 40px cyan,0 0 80px cyan; font-weight:900; z-index:300; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); animation:blink .5s infinite; }
+    /* LVL3 SIMON */
+    #simon-display { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-bottom:24px; z-index:300; }
+    .simon-emoji { font-size:62px; cursor:pointer; padding:10px; border-radius:14px; border:3px solid transparent; transition:transform .1s,border-color .2s; }
+    .simon-emoji:hover { transform:scale(1.15); border-color:#fff; }
+    .simon-emoji.highlight { transform:scale(1.35); filter:drop-shadow(0 0 20px white); border-color:#ff0; }
+    #simon-hint { font-size:24px; color:white; text-shadow:0 0 15px white; z-index:300; text-align:center; margin-top:10px; }
+    #simon-round { position:fixed; top:80px; left:50%; transform:translateX(-50%); font-size:24px; color:#ff0; text-shadow:0 0 12px #ff0; z-index:300; }
+
+    /* LVL4 CLICKER */
+    #clicker-btn { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-size:50px; padding:28px 60px; font-family:'Comic Sans MS',cursive; font-weight:bold; background:#880000; color:white; border:5px solid red; border-radius:20px; cursor:pointer; box-shadow:0 0 40px red; z-index:300; transition:transform .05s; }
+    #clicker-btn:active { transform:translate(-50%,-50%) scale(.9); }
+    #clicker-count { position:fixed; top:80px; left:50%; transform:translateX(-50%); font-size:70px; color:white; font-weight:900; text-shadow:0 0 30px cyan; z-index:300; }
+    #clicker-timer { position:fixed; bottom:60px; left:50%; transform:translateX(-50%); font-size:36px; color:#ff0; text-shadow:0 0 20px #ff0; z-index:300; }
+
+    /* LVL5 SURVIVE */
+    #survive-timer { font-size:130px; color:white; text-shadow:0 0 40px cyan; font-weight:900; z-index:300; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); animation:blink .5s infinite; }
     #survive-hint  { position:fixed; bottom:60px; left:50%; transform:translateX(-50%); font-size:24px; color:white; text-shadow:0 0 15px white; z-index:300; }
 
-    /* === РІВЕНЬ 4: ЗНАЙДИ 💎 === */
-    #gem-grid { display:grid; gap:12px; z-index:300; }
-    #gem-title { position:fixed; top:80px; left:50%; transform:translateX(-50%); font-size:30px; color:white; font-weight:bold; text-shadow:0 0 20px white; z-index:300; text-align:center; white-space:nowrap; }
-    .gem-cell { font-size:52px; background:rgba(0,0,0,.5); border:3px solid #444; border-radius:12px; padding:10px; cursor:pointer; transition:transform .1s,border-color .2s; }
-    .gem-cell:hover { transform:scale(1.15); border-color:#fff; }
-    .gem-cell.wrong-gem { animation:shake .4s; border-color:red!important; background:rgba(150,0,0,.5)!important; }
-    .gem-cell.right-gem { border-color:gold!important; background:rgba(100,80,0,.7)!important; transform:scale(1.4)!important; }
 
-    /* === РІВЕНЬ 5: РЕАКЦІЯ === */
-    #react-circle { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-size:160px; z-index:300; cursor:pointer; pointer-events:none; }
-    #react-hint   { position:fixed; top:80px; left:50%; transform:translateX(-50%); font-size:26px; color:white; text-shadow:0 0 15px white; z-index:300; text-align:center; }
-    #react-score  { position:fixed; bottom:60px; left:50%; transform:translateX(-50%); font-size:28px; color:white; text-shadow:0 0 15px cyan; z-index:300; }
-    #react-msg    { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-size:80px; color:white; text-shadow:0 0 30px white; z-index:350; pointer-events:none; animation:blink .3s infinite; }
+    /* LVL6 ФІНАЛЬНИЙ ХАОС */
+    #chaos2-timer { font-size:140px; color:white; font-weight:900; text-shadow:0 0 50px red; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); animation:blink .3s infinite; z-index:300; pointer-events:none; }
+    #chaos2-msg   { font-size:36px; color:#ff0; font-weight:bold; text-shadow:0 0 20px #ff0; position:fixed; top:20%; left:50%; transform:translateX(-50%); z-index:300; pointer-events:none; text-align:center; animation:blink .5s infinite; }
 
-    /* === ФІНАЛ === */
-    .prize-link { display:inline-block; padding:20px 50px; font-size:28px; font-weight:bold; font-family:'Comic Sans MS',cursive; background:gold; color:#000; border:5px solid white; border-radius:16px; text-decoration:none; cursor:pointer; animation:rainbowBtn 1s infinite,btnPulse .4s infinite; box-shadow:0 0 50px gold; margin-top:10px; }
-    @keyframes rainbowBtn { 0%{background:linear-gradient(135deg,#ff00ff,#00ffff,#ffff00)} 33%{background:linear-gradient(135deg,#00ffff,#ffff00,#ff00ff)} 66%{background:linear-gradient(135deg,#ffff00,#ff00ff,#00ffff)} 100%{background:linear-gradient(135deg,#ff00ff,#00ffff,#ffff00)} }
-
-    /* === МУЗИКА КНОПКА === */
-    #music-btn { position:fixed; bottom:16px; right:16px; font-size:26px; background:rgba(0,0,0,.6); border:2px solid #fff; border-radius:10px; padding:8px 14px; cursor:pointer; z-index:999; color:white; }
+    /* FINAL */
+    .prize-link { display:inline-block; padding:18px 46px; font-size:26px; font-weight:bold; font-family:'Comic Sans MS',cursive; color:#000; border:5px solid white; border-radius:16px; text-decoration:none; cursor:pointer; animation:rainbowBtn 1s infinite,btnPulse .4s infinite; box-shadow:0 0 50px gold; margin-top:10px; }
+    @keyframes rainbowBtn { 0%{background:linear-gradient(135deg,#f0f,#0ff,#ff0)} 33%{background:linear-gradient(135deg,#0ff,#ff0,#f0f)} 66%{background:linear-gradient(135deg,#ff0,#f0f,#0ff)} 100%{background:linear-gradient(135deg,#f0f,#0ff,#ff0)} }
   </style>
 </head>
 <body>
   <div class="scanlines"></div>
   <div class="cursor" id="cursor">💣</div>
   <div id="progress-bar"></div>
-  <div id="level-label">Рівень 0 / 5</div>
-  <button id="music-btn" onclick="toggleMusic()" style="display:none">🔇 Музика</button>
+  <div id="level-label">Рівень 0 / 6</div>
+  <button id="music-btn" onclick="toggleMusic()">🔇 Музика</button>
 
-  <!-- ФОН -->
-  <div class="bg-chaos"   id="bg"    style="display:none"></div>
-  <div class="corner c-tl" id="c1"  style="display:none">💀</div>
-  <div class="corner c-tr" id="c2"  style="display:none">🔥</div>
-  <div class="corner c-bl" id="c3"  style="display:none">💥</div>
-  <div class="corner c-br" id="c4"  style="display:none">🤡</div>
-  <div class="marquee-wrap mq-top" id="mqTop" style="display:none">
-    <span class="mq-text" style="color:#ff0">🔥 ЧЕЛЕНДЖ АКТИВОВАНО 🔥 &nbsp; 💀 ЛИШЕ СМІЛЬЧАКИ ПРОХОДЯТЬ 💀 &nbsp; 🤡 ТИ ВПОРАЄШСЯ? 🤡 &nbsp; 🔥 ЧЕЛЕНДЖ АКТИВОВАНО 🔥</span>
+  <div class="bg-chaos"    id="bg"    style="display:none"></div>
+  <div class="corner c-tl" id="c1"   style="display:none">💀</div>
+  <div class="corner c-tr" id="c2"   style="display:none">🔥</div>
+  <div class="corner c-bl" id="c3"   style="display:none">💥</div>
+  <div class="corner c-br" id="c4"   style="display:none">🤡</div>
+  <div class="marquee-wrap mq-top"    id="mqTop" style="display:none">
+    <span class="mq-text" style="color:#ff0">🔥 ЧЕЛЕНДЖ АКТИВОВАНО 🔥 &nbsp;💀 ЛИШЕ СМІЛЬЧАКИ ПРОХОДЯТЬ 💀 &nbsp;🤡 ТОБІ СЛАБО! 🤡 &nbsp;🔥 ЧЕЛЕНДЖ АКТИВОВАНО 🔥</span>
   </div>
   <div class="marquee-wrap mq-bottom" id="mqBot" style="display:none">
-    <span class="mq-text-r" style="color:#0ff">😈 ПОВЕРНЕННЯ НЕМОЖЛИВЕ 😈 &nbsp; 👁️ МИ СПОСТЕРІГАЄМО 👁️ &nbsp; 🎺 ТА-ДА-ДА-ДА 🎺 &nbsp; 😈 ПОВЕРНЕННЯ НЕМОЖЛИВЕ 😈</span>
+    <span class="mq-text-r" style="color:#0ff">😈 ПОВЕРНЕННЯ НЕМОЖЛИВЕ 😈 &nbsp;👁️ МИ СПОСТЕРІГАЄМО 👁️ &nbsp;🎺 ТА-ДА-ДА 🎺 &nbsp;😈 ПОВЕРНЕННЯ НЕМОЖЛИВЕ 😈</span>
   </div>
 
-  <!-- ЕКРАН 0: СТАРТ -->
+  <!-- S0: СТАРТ -->
   <div class="screen active" id="s0">
     <div class="card" style="border-color:red;color:red;box-shadow:0 0 60px red;">
-      <h2 style="color:red">⛔ СТОП ⛔</h2>
-      <p>
-        Перед тобою <strong style="color:#ff4">НАЙЛЕГШИЙ ЧЕЛЕНДЖ В ІНТЕРНЕТІ</strong>™<br><br>
-        Всього 5 рівнів.<br>
-        Але ніхто ще не пройшов.<br><br>
-        <span style="color:#aaa;font-size:18px">(Ну, майже ніхто. Мабуть. Не знаємо.)</span>
+      <h2 style="color:red">⛔ УВАГА ⛔</h2>
+      <p>Перед тобою <strong style="color:#ff4">6 РІВНІВ БОЛЮ</strong>™<br><br>
+        Кожен складніший за попередній.<br>Але наприкінці — <strong style="color:#0ff">НАГОРОДА</strong> 🎁<br><br>
+        <span style="color:#888;font-size:17px">Рекорд проходження: ніхто. Взагалі.</span>
       </p>
       <button class="btn btn-red" onclick="startGame()">😈 ПРИЙНЯТИ ВИКЛИК</button><br>
       <button class="btn btn-blue" id="cowardBtn" onmouseenter="moveCoward()" onclick="moveCoward()">😇 Я БОЯГУЗ</button>
     </div>
   </div>
 
-  <!-- ЕКРАН 1: ЛОВИ КНОПКУ -->
+  <!-- S1: ЛОВИ КНОПКУ -->
   <div class="screen" id="s1">
     <div id="catch-counter" style="display:none"></div>
-    <div id="lvl1-hint">Злови кнопку <strong>5 разів</strong>!</div>
+    <div id="lvl1-hint"></div>
     <button id="escape-btn" onclick="catchBtn()">🏃 ЗЛОВИ МЕНЕ!</button>
   </div>
 
-  <!-- ЕКРАН 2: ТЕСТ -->
+  <!-- S2: ТЕСТ -->
   <div class="screen" id="s2">
-    <div class="card" style="border-color:#00ffff;color:#00ffff;">
+    <div class="card" style="border-color:#0ff;color:#0ff;">
       <h2 style="color:#0ff">🧠 РІВЕНЬ 2: ТЕСТ</h2>
       <p id="question-text"></p>
       <div class="answers" id="answers"></div>
+      <p id="q-progress" style="color:#888;font-size:16px;margin-top:12px;margin-bottom:0;"></p>
     </div>
   </div>
 
-  <!-- ЕКРАН 3: ВИЖИВИ -->
+  <!-- S3: САЙМОН -->
   <div class="screen" id="s3">
-    <div id="survive-timer">10</div>
-    <div id="survive-hint">Просто <strong>ВИЖИВИ</strong> 10 секунд 😈</div>
+    <div id="simon-round"></div>
+    <div id="simon-display"></div>
+    <div id="simon-hint">Дивись та запам'ятовуй...</div>
   </div>
 
-  <!-- ЕКРАН 4: ЗНАЙДИ АЛМАЗ -->
+  <!-- S4: КЛІККЕР -->
   <div class="screen" id="s4">
-    <div id="gem-title">💎 Знайди справжній алмаз! Решта — фейк 💎</div>
-    <div id="gem-grid"></div>
+    <div id="clicker-count">0</div>
+    <button id="clicker-btn" onclick="clickerClick()">👆 КЛІКАЙ!</button>
+    <div id="clicker-timer">⏱ 8с</div>
   </div>
 
-  <!-- ЕКРАН 5: РЕАКЦІЯ -->
+  <!-- S5: ВИЖИВИ -->
   <div class="screen" id="s5">
-    <div id="react-hint">Натисни ТІЛЬКИ коли з'явиться 🟢<br><span style="color:#f88">Не натискай на 🔴 — це пастка!</span></div>
-    <div id="react-circle"></div>
-    <div id="react-msg"  style="display:none"></div>
-    <div id="react-score">Раунд 1 / 5</div>
+    <div id="survive-timer">15</div>
+    <div id="survive-hint">ВИЖИВИ <strong>15 секунд</strong> 😈</div>
+  </div>
+
+
+  <!-- S6: ФІНАЛЬНИЙ ХАОС -->
+  <div class="screen" id="s6">
+    <div id="chaos2-msg">💀 ОСТАННІЙ РІВЕНЬ 💀<br>ВИЖИВИ ЩЕ 15 СЕКУНД!</div>
+    <div id="chaos2-timer">15</div>
   </div>
 
   <!-- ФІНАЛ -->
   <div class="screen" id="final">
     <div class="card" style="border-color:gold;color:gold;box-shadow:0 0 80px gold;">
-      <h2 style="color:gold;animation:none;font-size:50px;">🏆 ТИ ЗРОБИВ ЦЕ! 🏆</h2>
-      <p>
-        Ти пройшов усі 5 рівнів.<br>
-        Ти легенда. Твоя нагорода — <strong style="color:#ff0">ПРЕЗЕНТАЦІЯ</strong> 🎁
+      <h2 style="color:gold;animation:none;font-size:48px;">🏆 ЛЕГЕНДА! 🏆</h2>
+      <p>Ти пройшов усі 6 рівнів.<br>
+        Такого ще не робив ніхто.<br>
+        Тримай свою <strong style="color:#ff0">НАГОРОДУ</strong> 👑
       </p>
-      <a class="prize-link" href="https://www.canva.com/design/DAHBSsGhHBs/HYu_sFh0c0e9Gegp4IzMag/edit" target="_blank">
-        🎊 ОТРИМАТИ НАГОРОДУ 🎊
-      </a><br><br>
-      <button class="btn btn-red" onclick="location.reload()">🔄 Ще раз (навіщо?)</button>
+      <a class="prize-link" href="https://www.canva.com/design/DAHBSsGhHBs/HYu_sFh0c0e9Gegp4IzMag/edit" target="_blank">🎊 ОТРИМАТИ НАГОРОДУ 🎊</a><br><br>
+      <button class="btn btn-red" onclick="location.reload()">🔄 Ще раз (навіщо??)</button>
     </div>
   </div>
 
 <script>
-// ==================== МУЗИКА (Web Audio API) ====================
-let audioCtx, musicOn = false, musicNodes = [];
+// ====== МУЗИКА ======
+let audioCtx, musicOn=false, melodyLoop, drumLoop, chordLoop;
+const MELODY = [196,196,220,196,175,147,196,196,220,247,262,247,220,196,175,196,262,262,294,262,247,220,196,175,196,220,247,262,294,330,294,262];
+const CHORDS = [[131,165,196,247],[117,147,175,220],[98,131,165,196],[110,138,165,207]];
+let mStep=0, cStep=0, dStep=0;
 
-function initAudio() {
-  if (audioCtx) return;
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function initAudio() { if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); }
+function note(freq,dur,type='sine',vol=0.2) {
+  if(!audioCtx||!musicOn) return;
+  const o=audioCtx.createOscillator(), g=audioCtx.createGain(), f=audioCtx.createBiquadFilter();
+  f.type='lowpass'; f.frequency.value=4000;
+  o.connect(f); f.connect(g); g.connect(audioCtx.destination);
+  o.type=type; o.frequency.setValueAtTime(freq,audioCtx.currentTime);
+  g.gain.setValueAtTime(vol,audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);
+  o.start(); o.stop(audioCtx.currentTime+dur);
 }
-
-// Епічна мелодія — ноти в Гц
-const epicMelody = [
-  196,196,196,147,175,196,220,196,175,196,
-  262,262,247,220,196,175,147,131,
-  196,220,247,262,294,330,349,330,
-  294,262,220,196,175,147,131,196
-];
-const drumPattern = [1,0,0,0,1,0,1,0]; // kick pattern
-
-let melodyStep = 0, drumStep = 0, tempoMs = 180;
-let melodyLoop, drumLoop;
-
-function playNote(freq, duration, type='sine', vol=0.25) {
-  if (!audioCtx || !musicOn) return;
-  const osc   = audioCtx.createOscillator();
-  const gain  = audioCtx.createGain();
-  const filt  = audioCtx.createBiquadFilter();
-  filt.type = 'lowpass'; filt.frequency.value = 3000;
-  osc.connect(filt); filt.connect(gain); gain.connect(audioCtx.destination);
-  osc.type = type;
-  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-  gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-  osc.start(); osc.stop(audioCtx.currentTime + duration);
-  musicNodes.push(osc);
+function kick() {
+  if(!audioCtx||!musicOn) return;
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.connect(g);g.connect(audioCtx.destination); o.type='sine';
+  o.frequency.setValueAtTime(160,audioCtx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.35);
+  g.gain.setValueAtTime(0.8,audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.35);
+  o.start(); o.stop(audioCtx.currentTime+0.35);
 }
-
-function playDrum() {
-  if (!audioCtx || !musicOn) return;
-  // Kick
-  const osc  = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain); gain.connect(audioCtx.destination);
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-  gain.gain.setValueAtTime(0.7, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-  osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-  // Hat
-  const buf  = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.05, audioCtx.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i=0; i<data.length; i++) data[i] = Math.random()*2-1;
-  const src  = audioCtx.createBufferSource();
-  const filt = audioCtx.createBiquadFilter();
-  const hgain= audioCtx.createGain();
-  src.buffer = buf; filt.type='highpass'; filt.frequency.value=8000;
-  src.connect(filt); filt.connect(hgain); hgain.connect(audioCtx.destination);
-  hgain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-  hgain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.05);
-  src.start();
+function hat() {
+  if(!audioCtx||!musicOn) return;
+  const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*0.05,audioCtx.sampleRate);
+  const d=buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+  const s=audioCtx.createBufferSource(), f=audioCtx.createBiquadFilter(), g=audioCtx.createGain();
+  s.buffer=buf; f.type='highpass'; f.frequency.value=9000;
+  s.connect(f);f.connect(g);g.connect(audioCtx.destination);
+  g.gain.setValueAtTime(0.12,audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.05);
+  s.start();
 }
-
-function playChord(freqs) {
-  freqs.forEach(f => playNote(f, 0.6, 'sawtooth', 0.08));
-}
-
-const chords = [[131,165,196],[117,147,175],[98,131,165],[110,138,165]];
-let chordStep = 0, chordLoop;
-
 function startMusic() {
-  if (!audioCtx) return;
-  musicOn = true;
-  document.getElementById('music-btn').textContent = '🔊 Музика';
-
-  melodyLoop = setInterval(() => {
-    if (!musicOn) return;
-    const note = epicMelody[melodyStep % epicMelody.length];
-    playNote(note * 2, 0.22, 'square', 0.18);     // основна мелодія
-    playNote(note,     0.22, 'triangle', 0.10);   // октава нижче
-    melodyStep++;
-  }, tempoMs);
-
-  drumLoop = setInterval(() => {
-    if (!musicOn) return;
-    if (drumPattern[drumStep % drumPattern.length]) playDrum();
-    drumStep++;
-  }, tempoMs / 2);
-
-  chordLoop = setInterval(() => {
-    if (!musicOn) return;
-    playChord(chords[chordStep % chords.length]);
-    chordStep++;
-  }, tempoMs * 4);
+  musicOn=true; document.getElementById('music-btn').textContent='🔊 Музика';
+  melodyLoop=setInterval(()=>{ note(MELODY[mStep%MELODY.length]*2,.2,'square',.2); note(MELODY[mStep++%MELODY.length],.2,'triangle',.1); },175);
+  chordLoop=setInterval(()=>{ CHORDS[cStep++%CHORDS.length].forEach(f=>note(f,.55,'sawtooth',.07)); },700);
+  drumLoop=setInterval(()=>{ if(dStep%2===0)kick(); hat(); dStep++; },88);
 }
-
 function stopMusic() {
-  musicOn = false;
-  clearInterval(melodyLoop);
-  clearInterval(drumLoop);
-  clearInterval(chordLoop);
-  document.getElementById('music-btn').textContent = '🔇 Музика';
+  musicOn=false; clearInterval(melodyLoop); clearInterval(drumLoop); clearInterval(chordLoop);
+  document.getElementById('music-btn').textContent='🔇 Музика';
 }
+function toggleMusic() { initAudio(); musicOn?stopMusic():startMusic(); }
+function playWrong() { if(!audioCtx)return; note(90,.5,'sawtooth',.35); setTimeout(()=>note(70,.5,'sawtooth',.3),180); }
+function playRight() { if(!audioCtx)return; [523,659,784].forEach((f,i)=>setTimeout(()=>note(f,.2,'square',.25),i*100)); }
+function playFanfare() { if(!audioCtx)return; [523,659,784,1047,784,1047,1319].forEach((f,i)=>setTimeout(()=>{ note(f,.35,'square',.35); note(f/2,.35,'sawtooth',.15); },i*160)); }
 
-function toggleMusic() {
-  initAudio();
-  if (musicOn) stopMusic(); else startMusic();
-}
+// ====== CURSOR ======
+const CE=['💣','🔥','💀','🤡','👹','😈','💥','🎃','👁️','🌪️']; let ce=0;
+document.addEventListener('mousemove',e=>{ const c=document.getElementById('cursor'); c.style.left=e.clientX+'px'; c.style.top=e.clientY+'px'; });
+setInterval(()=>document.getElementById('cursor').textContent=CE[ce++%CE.length],350);
 
-// Переможна фанфара
-function playVictoryFanfare() {
-  if (!audioCtx) return;
-  const fanfare = [523,659,784,1047,784,659,523];
-  fanfare.forEach((f,i) => {
-    setTimeout(() => {
-      playNote(f, 0.3, 'square', 0.3);
-      playNote(f/2, 0.3, 'sawtooth', 0.15);
-    }, i*150);
+// ====== BOOM ======
+document.addEventListener('click',e=>boom(e.clientX,e.clientY));
+function boom(x,y,n=3) {
+  ['💥','🔥','⚡','✨','💫'].forEach((_,i)=>{ if(i>=n)return;
+    const el=document.createElement('div'); el.className='boom';
+    el.textContent=['💥','🔥','⚡','✨','💫'][Math.floor(Math.random()*5)];
+    el.style.fontSize=(28+Math.random()*28)+'px';
+    el.style.left=(x+(Math.random()-.5)*90)+'px'; el.style.top=(y+(Math.random()-.5)*90)+'px';
+    document.body.appendChild(el); setTimeout(()=>el.remove(),750);
   });
 }
 
-// Звук помилки
-function playWrong() {
-  if (!audioCtx) return;
-  playNote(100, 0.4, 'sawtooth', 0.3);
-  setTimeout(() => playNote(80, 0.4, 'sawtooth', 0.3), 150);
-}
+// ====== FLOATERS ======
+const FP=['🤡','💀','🔥','😈','👻','💥','🎺','🐸','👁️','🧨','🤪','😱','🦆','🚀'];
+let floatI, popupI, autoBoomI;
+function startFloaters(){ floatI=setInterval(()=>{ const el=document.createElement('div'); el.className='floater'; el.textContent=FP[Math.floor(Math.random()*FP.length)]; el.style.fontSize=(38+Math.random()*48)+'px'; el.style.left=Math.random()*window.innerWidth+'px'; el.style.top=(window.innerHeight-50)+'px'; document.body.appendChild(el); setTimeout(()=>el.remove(),1600); },240); }
+const PT=['🎉 ТИ ВИГРАВ BMW!','⚠️ ВІРУС ЗНАЙДЕНО!','👽 ПИШИ В ТГ','🍕 ХОЧЕШ ПІЦУ?','💰 ВІДПРАВ 1₴','🤖 Я СТЕЖУ','😱 ЩО ТИ РОБИШ??','🐸 КВА-КВА','🎸 РОКЕНРОЛ!','💀 РОЗСЛАБСЯ','🧃 ХОЧЕШ СОКУ?','🕵️ ХТО ТАМ?','🦠 COVID-26?!','💊 ПРИЙМИ ТАБЛЕТКУ'];
+function startPopups(ms=1800){ clearInterval(popupI); popupI=setInterval(()=>{ const el=document.createElement('div'); el.className='popup'; el.textContent=PT[Math.floor(Math.random()*PT.length)]; el.style.left=(60+Math.random()*(window.innerWidth-280))+'px'; el.style.top=(60+Math.random()*(window.innerHeight-160))+'px'; el.onclick=()=>el.remove(); document.body.appendChild(el); setTimeout(()=>el.remove(),2400); },ms); }
+function startAutoBoom(ms=700){ clearInterval(autoBoomI); autoBoomI=setInterval(()=>boom(Math.random()*window.innerWidth,Math.random()*window.innerHeight,2),ms); }
 
-// ==================== CURSOR ====================
-const cursorEmojis = ['💣','🔥','💀','🤡','👹','😈','💥','🎃','👁️','🌪️'];
-let ce = 0;
-document.addEventListener('mousemove', e => {
-  const c = document.getElementById('cursor');
-  c.style.left = e.clientX + 'px';
-  c.style.top  = e.clientY + 'px';
-});
-setInterval(() => {
-  document.getElementById('cursor').textContent = cursorEmojis[ce++ % cursorEmojis.length];
-}, 350);
+// ====== HELPERS ======
+const TOTAL=6;
+function setProgress(n){ document.getElementById('progress-bar').style.width=(n/TOTAL*100)+'%'; document.getElementById('level-label').textContent=`Рівень ${n} / ${TOTAL}`; }
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function showBG(){ ['bg','c1','c2','c3','c4','mqTop','mqBot'].forEach(id=>document.getElementById(id).style.display=''); startFloaters();startPopups();startAutoBoom(); document.getElementById('music-btn').style.display=''; }
 
-// ==================== BOOM ====================
-document.addEventListener('click', e => spawnBoom(e.clientX, e.clientY));
-function spawnBoom(x, y, count=3) {
-  const emojis = ['💥','🔥','⚡','✨','💫'];
-  for (let i=0; i<count; i++) {
-    const el = document.createElement('div');
-    el.className = 'boom';
-    el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
-    el.style.fontSize = (30+Math.random()*30)+'px';
-    el.style.left = (x+(Math.random()-.5)*80)+'px';
-    el.style.top  = (y+(Math.random()-.5)*80)+'px';
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(), 750);
-  }
-}
+// ====== СТАРТ ======
+function startGame(){ initAudio(); startMusic(); showBG(); setProgress(0); startLevel1(); }
+function moveCoward(){ const b=document.getElementById('cowardBtn'); b.style.position='fixed'; b.style.left=Math.random()*(window.innerWidth-200)+'px'; b.style.top=Math.random()*(window.innerHeight-80)+'px'; }
 
-// ==================== FLOATERS ====================
-const floatPool = ['🤡','💀','🔥','😈','👻','💥','🎺','🐸','👁️','🧨','🤪','😱','🦆','🚀'];
-let floatInterval;
-function startFloaters() {
-  floatInterval = setInterval(() => {
-    const el = document.createElement('div');
-    el.className = 'floater';
-    el.textContent = floatPool[Math.floor(Math.random()*floatPool.length)];
-    el.style.fontSize = (40+Math.random()*50)+'px';
-    el.style.left = Math.random()*window.innerWidth+'px';
-    el.style.top  = (window.innerHeight-50)+'px';
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(), 1600);
-  }, 250);
-}
+// ====== LVL1: ЛОВИ КНОПКУ (7 разів, зона 70px) ======
+let catches=0;
+function startLevel1(){ showScreen('s1'); catches=0; updCatch(); moveEB(); }
+function moveEB(){ const b=document.getElementById('escape-btn'),m=90; b.style.left=(m+Math.random()*(window.innerWidth-2*m-220))+'px'; b.style.top=(m+Math.random()*(window.innerHeight-2*m-80))+'px'; }
+document.addEventListener('mousemove',e=>{ const b=document.getElementById('escape-btn'); if(!b||!document.getElementById('s1').classList.contains('active'))return; const r=b.getBoundingClientRect(); if(Math.hypot(e.clientX-r.left-r.width/2,e.clientY-r.top-r.height/2)<70)moveEB(); });
+function updCatch(){ const left=7-catches; document.getElementById('lvl1-hint').innerHTML=`Злови кнопку ще <strong>${left}</strong> ${left===1?'раз':'рази'}! (7 загалом)`; }
+function catchBtn(){ catches++; const c=document.getElementById('catch-counter'); c.style.display='block'; c.textContent=['🎯 +1!','😤 Ще!','🏃 Тікаю!','👀 О ЯК!','💪 МАЙЖЕ!','😤 ЩЕ ТРОХИ!','🏆 ОСТАННІЙ!'][Math.min(catches-1,6)]; setTimeout(()=>c.style.display='none',700); if(catches>=7) setTimeout(startLevel2,700); else{ updCatch(); moveEB(); } }
 
-// ==================== POPUPS ====================
-const popupTexts = [
-  '🎉 ТИ ВИГРАВ BMW!','⚠️ ВІРУС ЗНАЙДЕНО!','👽 БРАТ, ПИШИ В ТГ',
-  '🍕 ХОЧЕШ ПІЦУ?','💰 ВІДПРАВ 1₴','🤖 Я ЗА ТОБОЮ СТЕЖУ',
-  '😱 ЩО ТИ РОБИШ??','🐸 КВА-КВА-КВА','🎸 РОКЕНРОЛ!',
-  '💀 РОЗСЛАБСЯ, ВСЕ ДОБРЕ','🧃 ХОЧЕШ СОКУ?','🕵️ ХТО ТАМ?'
+// ====== LVL2: ТЕСТ (5 питань, підступні) ======
+const QS=[
+  { q:'🤔 Скільки буде 2 + 2?', a:[{t:'🐟 Риба',r:false},{t:'4',r:true},{t:'22',r:false},{t:'Четвер',r:false}] },
+  { q:'🍎 Яблуко якого кольору?', a:[{t:'Червоне',r:true},{t:'🐘 Слон',r:false},{t:'Квадратне',r:false},{t:'На смак',r:false}] },
+  { q:'🌍 Яка столиця України?', a:[{t:'Лондон',r:false},{t:'Марс',r:false},{t:'Київ',r:true},{t:'Майнкрафт',r:false}] },
+  { q:'🔢 Скільки днів у тижні?', a:[{t:'5',r:false},{t:'7',r:true},{t:'12',r:false},{t:'🦆 Качка',r:false}] },
+  { q:'🎨 Синій + жовтий = ?', a:[{t:'Фіолетовий',r:false},{t:'Зелений',r:true},{t:'Кефір',r:false},{t:'±404',r:false}] },
+  { q:'🐔 Хто знесе яйце?', a:[{t:'Корова',r:false},{t:'Курка',r:true},{t:'Комп\'ютер',r:false},{t:'Чоловік',r:false}] },
 ];
-let popupInterval;
-function startPopups(ms=1800) {
-  clearInterval(popupInterval);
-  popupInterval = setInterval(() => {
-    const el = document.createElement('div');
-    el.className = 'popup';
-    el.textContent = popupTexts[Math.floor(Math.random()*popupTexts.length)];
-    el.style.left = (60+Math.random()*(window.innerWidth-280))+'px';
-    el.style.top  = (60+Math.random()*(window.innerHeight-160))+'px';
-    el.onclick = ()=>el.remove();
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(), 2500);
-  }, ms);
+let qIdx=0;
+function startLevel2(){ setProgress(1); qIdx=0; showScreen('s2'); showQ(); }
+function showQ(){
+  const q=QS[qIdx];
+  document.getElementById('question-text').textContent=q.q;
+  document.getElementById('q-progress').textContent=`Питання ${qIdx+1} / ${QS.length}`;
+  const c=document.getElementById('answers'); c.innerHTML='';
+  [...q.a].sort(()=>Math.random()-.5).forEach(a=>{ const b=document.createElement('button'); b.className='ans-btn'; b.textContent=a.t; b.onclick=()=>ansClick(b,a.r,c,q); c.appendChild(b); });
+}
+function ansClick(btn,ok,c,q){
+  c.querySelectorAll('.ans-btn').forEach(b=>b.onclick=null);
+  if(ok){ btn.classList.add('right'); playRight(); qIdx++; if(qIdx>=QS.length) setTimeout(startLevel3,900); else setTimeout(showQ,900); }
+  else{ btn.classList.add('wrong'); playWrong(); boom(window.innerWidth/2,window.innerHeight/2,5); setTimeout(()=>{ c.querySelectorAll('.ans-btn').forEach(b=>{ b.classList.remove('wrong','right'); const f=q.a.find(a=>a.t===b.textContent); b.onclick=()=>ansClick(b,f?.r||false,c,q); }); },700); }
 }
 
-let autoBoom;
-function startAutoBoom(ms=700) {
-  clearInterval(autoBoom);
-  autoBoom = setInterval(() => spawnBoom(Math.random()*window.innerWidth, Math.random()*window.innerHeight, 2), ms);
+// ====== LVL3: САЙМОН (4 раунди, до 5 емодзі) ======
+const SEMOJI=['🔥','💀','🤡','👻','🎃','👾','🦄','🐸'];
+let simonSeq=[], simonInput=[], simonRound=0, simonShowing=false;
+function startLevel3(){ setProgress(2); simonSeq=[]; simonRound=0; showScreen('s3'); nextSimon(); }
+function nextSimon(){
+  simonRound++;
+  document.getElementById('simon-round').textContent=`Раунд ${simonRound} / 4`;
+  if(simonRound>4){ setTimeout(startLevel4,500); return; }
+  simonSeq.push(SEMOJI[Math.floor(Math.random()*SEMOJI.length)]);
+  simonInput=[];
+  renderSimonBtns(false);
+  document.getElementById('simon-hint').textContent='👀 Дивись та запам\'ятовуй...';
+  showSimonSeq();
 }
-
-// ==================== PROGRESS ====================
-const TOTAL = 5;
-function setProgress(lvl) {
-  document.getElementById('progress-bar').style.width = (lvl/TOTAL*100)+'%';
-  document.getElementById('level-label').textContent  = `Рівень ${lvl} / ${TOTAL}`;
+function renderSimonBtns(active){
+  const d=document.getElementById('simon-display'); d.innerHTML='';
+  SEMOJI.forEach(e=>{ const el=document.createElement('div'); el.className='simon-emoji'; el.textContent=e; el.style.pointerEvents=active?'auto':'none'; if(active) el.onclick=()=>simonClick(e,el); d.appendChild(el); });
 }
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-function showBackground() {
-  ['bg','c1','c2','c3','c4','mqTop','mqBot'].forEach(id=>document.getElementById(id).style.display='');
-  startFloaters(); startPopups(); startAutoBoom();
-  document.getElementById('music-btn').style.display = '';
-}
-
-// ==================== СТАРТ ====================
-function startGame() {
-  initAudio();
-  startMusic();
-  showBackground();
-  setProgress(0);
-  startLevel1();
-}
-
-function moveCoward() {
-  const btn = document.getElementById('cowardBtn');
-  btn.style.position = 'fixed';
-  btn.style.left = Math.random()*(window.innerWidth-200)+'px';
-  btn.style.top  = Math.random()*(window.innerHeight-80)+'px';
-}
-
-// ==================== РІВЕНЬ 1: ЛОВИ КНОПКУ ====================
-let catchCount = 0;
-function startLevel1() {
-  showScreen('s1');
-  catchCount = 0;
-  updateCatchHint();
-  moveEscapeBtn();
-}
-function moveEscapeBtn() {
-  const btn = document.getElementById('escape-btn');
-  const m = 100;
-  btn.style.left = (m+Math.random()*(window.innerWidth -2*m-220))+'px';
-  btn.style.top  = (m+Math.random()*(window.innerHeight-2*m-80))+'px';
-}
-document.addEventListener('mousemove', e => {
-  const btn = document.getElementById('escape-btn');
-  if (!btn || !document.getElementById('s1').classList.contains('active')) return;
-  const r = btn.getBoundingClientRect();
-  if (Math.hypot(e.clientX-r.left-r.width/2, e.clientY-r.top-r.height/2) < 80) moveEscapeBtn();
-});
-function updateCatchHint() {
-  const left = 5-catchCount;
-  document.getElementById('lvl1-hint').innerHTML = left>0 ? `Злови кнопку ще <strong>${left}</strong> ${left===1?'раз':'рази'}!` : '';
-}
-function catchBtn() {
-  catchCount++;
-  const counter = document.getElementById('catch-counter');
-  counter.style.display = 'block';
-  counter.textContent = ['🎯 +1!','😤 НЕ ТАК ЛЕГКО!','👀 О ЯК?!','💪 МАЙЖЕ!','🏆 ОСТАННІЙ!'][Math.min(catchCount-1,4)];
-  setTimeout(()=>counter.style.display='none', 800);
-  if (catchCount >= 5) setTimeout(startLevel2, 800);
-  else { updateCatchHint(); moveEscapeBtn(); }
-}
-
-// ==================== РІВЕНЬ 2: ТЕСТ ====================
-const questions = [
-  { q:'🤔 Скільки буде 2 + 2?', answers:[{text:'🐟 Риба',right:false},{text:'4',right:true},{text:'🌈 Зелений',right:false},{text:'Четвер',right:false}] },
-  { q:'🌍 Яка столиця України?', answers:[{text:'Лондон',right:false},{text:'Марс',right:false},{text:'Київ',right:true},{text:'Майнкрафт',right:false}] },
-  { q:'🎨 Який колір неба вдень?', answers:[{text:'Блакитний',right:true},{text:'Кефір',right:false},{text:'±404',right:false},{text:'Трикутний',right:false}] },
-];
-let qIndex = 0;
-function startLevel2() {
-  setProgress(1); qIndex = 0; showScreen('s2'); showQuestion();
-}
-function showQuestion() {
-  const q = questions[qIndex];
-  document.getElementById('question-text').textContent = q.q;
-  const container = document.getElementById('answers');
-  container.innerHTML = '';
-  [...q.answers].sort(()=>Math.random()-.5).forEach(a => {
-    const btn = document.createElement('button');
-    btn.className = 'ans-btn';
-    btn.textContent = a.text;
-    btn.onclick = () => answerClicked(btn, a.right, container, q);
-    container.appendChild(btn);
-  });
-}
-function answerClicked(btn, isRight, container, q) {
-  container.querySelectorAll('.ans-btn').forEach(b=>b.onclick=null);
-  if (isRight) {
-    btn.classList.add('right');
-    qIndex++;
-    if (qIndex >= questions.length) setTimeout(startLevel3, 900);
-    else setTimeout(showQuestion, 900);
-  } else {
-    btn.classList.add('wrong');
-    playWrong();
-    spawnBoom(window.innerWidth/2, window.innerHeight/2, 5);
-    setTimeout(() => {
-      container.querySelectorAll('.ans-btn').forEach(b=>{
-        b.classList.remove('wrong','right');
-        const found = q.answers.find(a=>a.text===b.textContent);
-        b.onclick = () => answerClicked(b, found?.right||false, container, q);
-      });
-    }, 700);
+function showSimonSeq(){
+  let i=0;
+  function flash(){ if(i>=simonSeq.length){ setTimeout(()=>{ renderSimonBtns(true); document.getElementById('simon-hint').textContent='🖱️ Повтори послідовність!'; },400); return; }
+    const em=simonSeq[i]; i++;
+    document.getElementById('simon-display').querySelectorAll('.simon-emoji').forEach(el=>{ if(el.textContent===em) el.classList.add('highlight'); });
+    setTimeout(()=>{ document.getElementById('simon-display').querySelectorAll('.simon-emoji').forEach(el=>el.classList.remove('highlight')); setTimeout(flash,300); },600);
   }
+  setTimeout(flash,600);
+}
+function simonClick(e,el){
+  simonInput.push(e);
+  el.classList.add('highlight'); setTimeout(()=>el.classList.remove('highlight'),300);
+  const idx=simonInput.length-1;
+  if(simonInput[idx]!==simonSeq[idx]){ playWrong(); boom(window.innerWidth/2,window.innerHeight/2,6); document.getElementById('simon-hint').textContent='❌ Помилка! Починаємо раунд знову...'; renderSimonBtns(false); setTimeout(()=>{ simonInput=[]; setTimeout(()=>{ renderSimonBtns(false); showSimonSeq(); },300); },1000); return; }
+  if(simonInput.length===simonSeq.length){ playRight(); document.getElementById('simon-hint').textContent='✅ Вірно! Далі!'; renderSimonBtns(false); setTimeout(nextSimon,900); }
 }
 
-// ==================== РІВЕНЬ 3: ВИЖИВИ ====================
-let surviveTimer;
-function startLevel3() {
-  setProgress(2); showScreen('s3');
-  let t = 10;
-  document.getElementById('survive-timer').textContent = t;
-  document.getElementById('survive-timer').style.color = 'white';
-  startPopups(600);
-  startAutoBoom(300);
-  surviveTimer = setInterval(() => {
+// ====== LVL4: КЛІККЕР (30 кліків за 8 сек) ======
+let clicks=0, clickTimer, clickInterval;
+function startLevel4(){ setProgress(3); clicks=0; showScreen('s4'); document.getElementById('clicker-count').textContent='0'; let t=8;
+  document.getElementById('clicker-timer').textContent='⏱ '+t+'с';
+  clickInterval=setInterval(()=>{ t--; document.getElementById('clicker-timer').textContent='⏱ '+t+'с'; if(t<=3) document.getElementById('clicker-timer').style.color='red'; if(t<=0){ clearInterval(clickInterval); failClicker(); } },1000);
+}
+function clickerClick(){ if(!document.getElementById('s4').classList.contains('active'))return; clicks++; document.getElementById('clicker-count').textContent=clicks; boom(window.innerWidth/2,window.innerHeight/2,2); if(clicks>=30){ clearInterval(clickInterval); setTimeout(startLevel5,400); } }
+function failClicker(){ document.getElementById('clicker-count').style.color='red'; setTimeout(()=>{ document.getElementById('clicker-count').style.color='white'; startLevel4(); },1200); }
+
+// ====== LVL5: ВИЖИВИ (15 сек, АБСОЛЮТНИЙ ХАОС) ======
+let surviveI, surviveExtraI=[];
+function startLevel5(){
+  setProgress(4); showScreen('s5'); let t=15;
+  document.getElementById('survive-timer').textContent=t;
+  document.getElementById('survive-timer').style.color='white';
+  document.getElementById('survive-hint').textContent='ВИЖИВИ 15 секунд 😈';
+
+  // Попапи кожні 300мс
+  startPopups(300);
+  // Вибухи кожні 150мс
+  startAutoBoom(150);
+
+  // Тряска екрана
+  const shakeI=setInterval(()=>{
+    document.body.style.transform=`translate(${(Math.random()-.5)*14}px,${(Math.random()-.5)*14}px)`;
+  },60);
+  surviveExtraI.push(shakeI);
+
+  // Мерехтіння фону (змінюємо швидкість анімації)
+  const flashI=setInterval(()=>{
+    const bg=document.getElementById('bg');
+    if(bg) bg.style.animationDuration=(0.1+Math.random()*.3)+'s';
+  },200);
+  surviveExtraI.push(flashI);
+
+  // Гігантські літаючі емодзі (у 3 рази більші)
+  const bigI=setInterval(()=>{
+    const el=document.createElement('div');
+    el.className='floater';
+    el.textContent=FP[Math.floor(Math.random()*FP.length)];
+    el.style.fontSize=(100+Math.random()*80)+'px';
+    el.style.left=Math.random()*window.innerWidth+'px';
+    el.style.top=(window.innerHeight-100)+'px';
+    el.style.zIndex=600;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1500);
+  },350);
+  surviveExtraI.push(bigI);
+
+  // Інвертування кольорів час від часу
+  const invertI=setInterval(()=>{
+    document.body.style.filter=`invert(1) hue-rotate(${Math.random()*360}deg)`;
+    setTimeout(()=>document.body.style.filter='',120);
+  },600);
+  surviveExtraI.push(invertI);
+
+  // Рухомий таймер
+  const moveTimerI=setInterval(()=>{
+    const el=document.getElementById('survive-timer');
+    el.style.left=(20+Math.random()*60)+'%';
+    el.style.top=(20+Math.random()*60)+'%';
+  },500);
+  surviveExtraI.push(moveTimerI);
+
+  surviveI=setInterval(()=>{
     t--;
-    const el = document.getElementById('survive-timer');
-    el.textContent = t;
-    if (t <= 3) el.style.color = 'red';
-    if (t <= 0) { clearInterval(surviveTimer); setTimeout(startLevel4, 500); }
-  }, 1000);
+    const el=document.getElementById('survive-timer');
+    el.textContent=t;
+    if(t<=5) el.style.color='red';
+    if(t<=0){
+      clearInterval(surviveI);
+      surviveExtraI.forEach(i=>clearInterval(i));
+      surviveExtraI=[];
+      document.body.style.transform='';
+      document.body.style.filter='';
+      document.getElementById('survive-timer').style.left='50%';
+      document.getElementById('survive-timer').style.top='50%';
+      document.getElementById('bg').style.animationDuration='';
+      setTimeout(startLevel6,400);
+    }
+  },1000);
 }
 
-// ==================== РІВЕНЬ 4: ЗНАЙДИ АЛМАЗ ====================
-const fakeEmojis = ['🔷','🔹','💠','🔶','🔸','🔲','🔳','⬛','⬜','🟦','🟪','🟥'];
-let gemRound = 0, totalGemRounds = 3;
 
-function startLevel4() {
-  setProgress(3); gemRound = 0;
-  startPopups(1800); startAutoBoom(700);
-  showScreen('s4');
-  nextGemRound();
+// ====== LVL6: ФІНАЛЬНИЙ ХАОС (15 сек, ПОВНИЙ ТРЕШ) ======
+let chaos2I, chaos2Extra=[];
+const CHAOS_MSGS=['💀 ТИ МАЙЖЕ ЗДОХ!','🔥 ГОРИТЬ ВСЕ!','😈 НЕМАЄ ВИХОДУ!','🤡 ХА-ХА-ХА!','👁️ МИ ТЕБЕ БАЧИМО!','🚨 ТРИВОГА!!!','💥 ВИБУХ!!!','🧠 МОЗОК ПЛАВИТЬСЯ!'];
+function startLevel6(){
+  setProgress(5); showScreen('s6'); let t=15;
+  const timerEl=document.getElementById('chaos2-timer');
+  const msgEl=document.getElementById('chaos2-msg');
+  timerEl.textContent=t; timerEl.style.color='white';
+
+  // Ще швидші попапи і вибухи
+  startPopups(200);
+  startAutoBoom(80);
+
+  // Тряска сильніша
+  const shakeI=setInterval(()=>{
+    document.body.style.transform=`translate(${(Math.random()-.5)*22}px,${(Math.random()-.5)*22}px) rotate(${(Math.random()-.5)*3}deg)`;
+  },50);
+  chaos2Extra.push(shakeI);
+
+  // Мінливий фон
+  const flashI=setInterval(()=>{
+    const bg=document.getElementById('bg');
+    if(bg) bg.style.animationDuration=(0.05+Math.random()*.15)+'s';
+  },100);
+  chaos2Extra.push(flashI);
+
+  // Гігантські емодзі
+  const bigI=setInterval(()=>{
+    const el=document.createElement('div'); el.className='floater';
+    el.textContent=FP[Math.floor(Math.random()*FP.length)];
+    el.style.fontSize=(120+Math.random()*120)+'px';
+    el.style.left=Math.random()*window.innerWidth+'px';
+    el.style.top=(window.innerHeight-100)+'px';
+    el.style.zIndex=600;
+    document.body.appendChild(el); setTimeout(()=>el.remove(),1500);
+  },200);
+  chaos2Extra.push(bigI);
+
+  // Постійне інвертування
+  const invertI=setInterval(()=>{
+    document.body.style.filter=`invert(1) hue-rotate(${Math.random()*360}deg) saturate(${2+Math.random()*5})`;
+    setTimeout(()=>document.body.style.filter='',80);
+  },300);
+  chaos2Extra.push(invertI);
+
+  // Рухомий таймер
+  const moveI=setInterval(()=>{
+    timerEl.style.left=(10+Math.random()*70)+'%';
+    timerEl.style.top=(15+Math.random()*65)+'%';
+  },400);
+  chaos2Extra.push(moveI);
+
+  // Змінюємо повідомлення
+  const msgI=setInterval(()=>{
+    msgEl.textContent=CHAOS_MSGS[Math.floor(Math.random()*CHAOS_MSGS.length)];
+    msgEl.style.left=(10+Math.random()*60)+'%';
+    msgEl.style.top=(5+Math.random()*20)+'%';
+    msgEl.style.color=['#ff0','#f0f','#0ff','#f00','#0f0'][Math.floor(Math.random()*5)];
+  },500);
+  chaos2Extra.push(msgI);
+
+  chaos2I=setInterval(()=>{
+    t--;
+    timerEl.textContent=t;
+    if(t<=5) timerEl.style.color='red';
+    if(t<=0){
+      clearInterval(chaos2I);
+      chaos2Extra.forEach(i=>clearInterval(i));
+      chaos2Extra=[];
+      document.body.style.transform='';
+      document.body.style.filter='';
+      document.getElementById('bg').style.animationDuration='';
+      timerEl.style.left='50%'; timerEl.style.top='50%';
+      setTimeout(showFinal,400);
+    }
+  },1000);
 }
 
-function nextGemRound() {
-  if (gemRound >= totalGemRounds) { setTimeout(startLevel5, 500); return; }
-  gemRound++;
-  document.getElementById('gem-title').textContent = `💎 Знайди справжній алмаз! (${gemRound}/${totalGemRounds})`;
-
-  // Сітка 5x4 = 20 клітинок
-  const cols = 5, rows = 4, total = cols * rows;
-  const grid = document.getElementById('gem-grid');
-  grid.style.gridTemplateColumns = `repeat(${cols},1fr)`;
-  grid.innerHTML = '';
-
-  const gemPos = Math.floor(Math.random() * total);
-  for (let i=0; i<total; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'gem-cell';
-    cell.textContent = (i === gemPos) ? '💎' : fakeEmojis[Math.floor(Math.random()*fakeEmojis.length)];
-    cell.onclick = () => gemClicked(cell, i === gemPos);
-    grid.appendChild(cell);
-  }
-}
-
-function gemClicked(cell, isGem) {
-  document.getElementById('gem-grid').querySelectorAll('.gem-cell').forEach(c=>c.onclick=null);
-  if (isGem) {
-    cell.classList.add('right-gem');
-    spawnBoom(window.innerWidth/2, window.innerHeight/2, 8);
-    setTimeout(nextGemRound, 1000);
-  } else {
-    cell.classList.add('wrong-gem');
-    playWrong();
-    setTimeout(() => nextGemRound(), 700);
-  }
-}
-
-// ==================== РІВЕНЬ 5: РЕАКЦІЯ ====================
-let reactRound = 0, reactTotal = 5, reactActive = false, reactTimeout, reactCorrect = 0;
-
-function startLevel5() {
-  setProgress(4); reactRound = 0; reactCorrect = 0; reactActive = false;
-  showScreen('s5');
-  document.getElementById('react-msg').style.display = 'none';
-  document.getElementById('react-circle').style.pointerEvents = 'none';
-  document.getElementById('react-circle').textContent = '';
-  updateReactScore();
-  setTimeout(nextReact, 1500);
-}
-
-function updateReactScore() {
-  document.getElementById('react-score').textContent = `Раунд ${reactRound+1} / ${reactTotal} | ✅ ${reactCorrect}`;
-}
-
-function nextReact() {
-  if (reactRound >= reactTotal) { finishReact(); return; }
-  const isGreen = Math.random() > 0.4; // 60% зелений
-  const delay   = 800 + Math.random()*2000;
-  const circle  = document.getElementById('react-circle');
-
-  circle.textContent = '';
-  circle.style.pointerEvents = 'none';
-  reactActive = false;
-
-  reactTimeout = setTimeout(() => {
-    circle.textContent = isGreen ? '🟢' : '🔴';
-    circle.style.pointerEvents = 'auto';
-    reactActive = true;
-
-    // onclick
-    circle.onclick = () => {
-      if (!reactActive) return;
-      reactActive = false;
-      circle.style.pointerEvents = 'none';
-      clearTimeout(reactTimeout);
-
-      if (isGreen) {
-        reactCorrect++;
-        showReactMsg('✅ ТАК!', 'lime');
-        spawnBoom(window.innerWidth/2, window.innerHeight/2, 4);
-      } else {
-        showReactMsg('❌ ПАСТКА!', 'red');
-        playWrong();
-        spawnBoom(window.innerWidth/2, window.innerHeight/2, 6);
-      }
-      reactRound++;
-      updateReactScore();
-      setTimeout(nextReact, 1200);
-    };
-
-    // Якщо не натиснули за 1.5с — теж рахуємо
-    reactTimeout = setTimeout(() => {
-      if (!reactActive) return;
-      reactActive = false;
-      circle.style.pointerEvents = 'none';
-      if (!isGreen) {
-        // Не натиснув на 🔴 — правильно!
-        reactCorrect++;
-        showReactMsg('😎 МОЛОДЕЦЬ!', 'cyan');
-      } else {
-        showReactMsg('⏰ ПРОПУСТИВ!', 'orange');
-      }
-      reactRound++;
-      updateReactScore();
-      circle.textContent = '';
-      setTimeout(nextReact, 1000);
-    }, 1500);
-
-  }, delay);
-}
-
-function showReactMsg(text, color) {
-  const el = document.getElementById('react-msg');
-  el.textContent = text;
-  el.style.color = color;
-  el.style.textShadow = `0 0 30px ${color}`;
-  el.style.display = 'block';
-  setTimeout(()=>el.style.display='none', 900);
-}
-
-function finishReact() {
-  clearTimeout(reactTimeout);
-  // Потрібно набрати хоча б 3 з 5
-  if (reactCorrect >= 3) {
-    setTimeout(showFinal, 500);
-  } else {
-    // Рестарт рівня
-    document.getElementById('react-hint').innerHTML =
-      `Недостатньо! ${reactCorrect}/5. Спробуй ще!<br><span style="color:#f88">Натисни 🟢 — не натискай 🔴</span>`;
-    setTimeout(startLevel5, 1500);
-  }
-}
-
-// ==================== ФІНАЛ ====================
-function showFinal() {
-  setProgress(5);
-  clearInterval(floatInterval); clearInterval(popupInterval); clearInterval(autoBoom);
-  clearTimeout(reactTimeout);
-  document.querySelectorAll('.popup').forEach(p=>p.remove());
-  stopMusic();
-  playVictoryFanfare();
-  for (let i=0; i<25; i++) setTimeout(()=>spawnBoom(Math.random()*window.innerWidth,Math.random()*window.innerHeight,5), i*80);
-  showScreen('final');
-}
+// ====== ФІНАЛ ======
+function showFinal(){ setProgress(7); clearInterval(floatI);clearInterval(popupI);clearInterval(autoBoomI); clearInterval(surviveI); document.querySelectorAll('.popup').forEach(p=>p.remove()); stopMusic(); playFanfare(); for(let i=0;i<30;i++) setTimeout(()=>boom(Math.random()*window.innerWidth,Math.random()*window.innerHeight,6),i*70); showScreen('final'); }
 </script>
 </body>
 </html>
