@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ua">
+<head>
+  <meta charset="UTF-8">
+  <title>⚠️ УВАГА</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#000; font-family:'Comic Sans MS',cursive; overflow:hidden; cursor:none; user-select:none; }
+
+    .screen { position:fixed; inset:0; display:none; align-items:center; justify-content:center; flex-direction:column; z-index:100; }
+    .screen.active { display:flex; }
+
+    .cursor { position:fixed; pointer-events:none; z-index:9999; font-size:36px; transform:translate(-50%,-50%); }
+    .scanlines { position:fixed; inset:0; background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0,rgba(0,0,0,.12) 2px,transparent 2px,transparent 4px); pointer-events:none; z-index:998; }
+
+    #progress-bar { position:fixed; top:0; left:0; height:8px; width:0%; background:linear-gradient(90deg,#ff00ff,#00ffff,#ffff00); z-index:999; transition:width .5s; box-shadow:0 0 10px cyan; }
+    #level-label  { position:fixed; top:12px; right:16px; color:white; font-size:18px; text-shadow:0 0 10px cyan; z-index:999; }
+
+    .bg-chaos { position:fixed; inset:0; background:linear-gradient(45deg,#ff00ff,#00ffff,#ff4400,#00ff00,#ffff00); background-size:500%; animation:bgMove .8s infinite; z-index:-2; }
+    @keyframes bgMove { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+    .corner { position:fixed; font-size:80px; z-index:10; pointer-events:none; animation:spin 1s linear infinite; }
+    .c-tl{top:0;left:0} .c-tr{top:0;right:0;animation-direction:reverse} .c-bl{bottom:0;left:0;animation-direction:reverse} .c-br{bottom:0;right:0}
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+    .floater { position:fixed; pointer-events:none; z-index:5; animation:floatUp 1.5s ease-out forwards; }
+    @keyframes floatUp { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(-200px) rotate(360deg);opacity:0} }
+
+    .boom { position:fixed; pointer-events:none; z-index:50; animation:boom .7s forwards; }
+    @keyframes boom { 0%{transform:scale(.3);opacity:1} 100%{transform:scale(4);opacity:0} }
+
+    .popup { position:fixed; background:white; border:4px solid red; padding:16px 20px; font-size:18px; font-weight:bold; border-radius:10px; box-shadow:0 0 30px red; z-index:500; animation:popIn .3s ease-out; cursor:pointer; max-width:220px; text-align:center; }
+    @keyframes popIn { 0%{transform:scale(0) rotate(-15deg)} 70%{transform:scale(1.1) rotate(3deg)} 100%{transform:scale(1)} }
+
+    .marquee-wrap { position:fixed; width:100%; pointer-events:none; z-index:20; }
+    .mq-top{top:20px} .mq-bottom{bottom:20px}
+    .mq-text   { white-space:nowrap; font-size:26px; font-weight:bold; animation:mqLeft 4s linear infinite; text-shadow:2px 2px #000; }
+    .mq-text-r { white-space:nowrap; font-size:26px; font-weight:bold; animation:mqRight 3s linear infinite; text-shadow:2px 2px #000; }
+    @keyframes mqLeft  { 0%{transform:translateX(100vw)}  100%{transform:translateX(-100%)} }
+    @keyframes mqRight { 0%{transform:translateX(-100%)}  100%{transform:translateX(100vw)} }
+
+    .card { background:rgba(0,0,0,.8); border:4px solid; border-radius:20px; padding:40px 50px; text-align:center; max-width:700px; width:90%; box-shadow:0 0 60px currentColor; z-index:200; animation:cardIn .4s ease-out; }
+    @keyframes cardIn { 0%{transform:scale(.5) rotate(-5deg);opacity:0} 100%{transform:scale(1) rotate(0);opacity:1} }
+    .card h2 { font-size:48px; margin-bottom:16px; text-shadow:0 0 20px currentColor; animation:blink .4s infinite; }
+    .card p   { font-size:22px; color:#fff; line-height:1.6; margin-bottom:28px; }
+    @keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:.6} }
+
+    .btn { display:inline-block; padding:16px 40px; font-size:24px; font-weight:bold; font-family:'Comic Sans MS',cursive; border:4px solid; border-radius:12px; cursor:pointer; margin:8px; animation:btnPulse .5s infinite; transition:filter .1s; }
+    .btn:hover { filter:brightness(1.4); }
+    @keyframes btnPulse { 0%{transform:scale(1)} 50%{transform:scale(1.07)} 100%{transform:scale(1)} }
+    .btn-red   { background:#cc0000; color:#fff; border-color:#ff4444; box-shadow:0 0 20px red; }
+    .btn-green { background:#006600; color:#0f0;  border-color:#00ff00; box-shadow:0 0 20px lime; }
+    .btn-blue  { background:#000088; color:#88f;  border-color:#4444ff; box-shadow:0 0 20px blue; }
+    .btn-gold  { background:#886600; color:#ff0;  border-color:#ffcc00; box-shadow:0 0 20px gold; }
+
+    /* === ЗВ'ЯЗУ З РІВНЕМ 1 === */
+    #escape-btn { position:fixed; padding:22px 50px; font-size:28px; font-weight:bold; font-family:'Comic Sans MS',cursive; background:#cc0000; color:#fff; border:4px solid #ff4444; border-radius:14px; cursor:pointer; box-shadow:0 0 30px red; animation:btnPulse .4s infinite; z-index:300; transition:left .4s,top .4s; }
+    #catch-counter { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-size:80px; color:white; text-shadow:0 0 30px white; pointer-events:none; z-index:300; animation:blink .3s infinite; }
+    #lvl1-hint { position:fixed; bottom:60px; left:50%; transform:translateX(-50%); font-size:22px; color:#fff; text-shadow:0 0 10px white; z-index:300; text-align:center; }
+
+    /* === РІВЕНЬ 2: ТЕСТ === */
+    .answers { display:flex; flex-direction:column; gap:12px; width:100%; }
+    .ans-btn { padding:14px 20px; font-size:20px; font-weight:bold; font-family:'Comic Sans MS',cursive; background:#111; color:#fff; border:3px solid #555; border-radius:10px; cursor:pointer; text-align:left; transition:background .15s,border-color .15s; }
+    .ans-btn:hover { background:#333; border-color:#ff0; }
+    .ans-btn.wrong { background:#660000!important; border-color:red!important; animation:shake .3s; }
+    .ans-btn.right { background:#006600!important; border-color:lime!important; }
+    @keyframes shake { 0%{transform:translateX(0)} 25%{transform:translateX(-10px)} 75%{transform:translateX(10px)} 100%{transform:translateX(0)} }
+
+    /* === РІВЕНЬ 3: ВИЖИВИ === */
+    #survive-timer { font-size:120px; color:white; text-shadow:0 0 40px cyan,0 0 80px cyan; font-weight:900; z-index:300; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); animation:blink .5s infinite; }
+    #survive-hint  { position:fixed; bottom:60px; left:50%; transform:translateX(-50%); font-size:24px; color:white; text-shadow:0 0 15px white; z-index:300; }
+
+    /* === РІВЕНЬ 4: ЗНАЙДИ 💎 === */
+    #gem-grid { display:grid; gap:12px; z-index:300; }
+    #gem-title { position:fixed; top:80px; left:50%; transform:translateX(-50%); font-size:30px; color:white; font-weight:bold; text-shadow:0 0 20px white; z-index:300; text-align:center; white-space:nowrap; }
+    .gem-cell { font-size:52px; background:rgba(0,0,0,.5); border:3px solid #444; border-radius:12px; padding:10px; cursor:pointer; transition:transform .1s,border-color .2s; }
+    .gem-cell:hover { transform:scale(1.15); border-color:#fff; }
+    .gem-cell.wrong-gem { animation:shake .4s; border-color:red!important; background:rgba(150,0,0,.5)!important; }
+    .gem-cell.right-gem { border-color:gold!important; background:rgba(100,80,0,.7)!important; transform:scale(1.4)!important; }
+
+    /* === РІВЕНЬ 5: РЕАКЦІЯ === */
+    #react-circle { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-size:160px; z-index:300; cursor:pointer; pointer-events:none; }
+    #react-hint   { position:fixed; top:80px; left:50%; transform:translateX(-50%); font-size:26px; color:white; text-shadow:0 0 15px white; z-index:300; text-align:center; }
+    #react-score  { position:fixed; bottom:60px; left:50%; transform:translateX(-50%); font-size:28px; color:white; text-shadow:0 0 15px cyan; z-index:300; }
+    #react-msg    { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-size:80px; color:white; text-shadow:0 0 30px white; z-index:350; pointer-events:none; animation:blink .3s infinite; }
+
+    /* === ФІНАЛ === */
+    .prize-link { display:inline-block; padding:20px 50px; font-size:28px; font-weight:bold; font-family:'Comic Sans MS',cursive; background:gold; color:#000; border:5px solid white; border-radius:16px; text-decoration:none; cursor:pointer; animation:rainbowBtn 1s infinite,btnPulse .4s infinite; box-shadow:0 0 50px gold; margin-top:10px; }
+    @keyframes rainbowBtn { 0%{background:linear-gradient(135deg,#ff00ff,#00ffff,#ffff00)} 33%{background:linear-gradient(135deg,#00ffff,#ffff00,#ff00ff)} 66%{background:linear-gradient(135deg,#ffff00,#ff00ff,#00ffff)} 100%{background:linear-gradient(135deg,#ff00ff,#00ffff,#ffff00)} }
+
+    /* === МУЗИКА КНОПКА === */
+    #music-btn { position:fixed; bottom:16px; right:16px; font-size:26px; background:rgba(0,0,0,.6); border:2px solid #fff; border-radius:10px; padding:8px 14px; cursor:pointer; z-index:999; color:white; }
+  </style>
+</head>
+<body>
+  <div class="scanlines"></div>
+  <div class="cursor" id="cursor">💣</div>
+  <div id="progress-bar"></div>
+  <div id="level-label">Рівень 0 / 5</div>
+  <button id="music-btn" onclick="toggleMusic()" style="display:none">🔇 Музика</button>
+
+  <!-- ФОН -->
+  <div class="bg-chaos"   id="bg"    style="display:none"></div>
+  <div class="corner c-tl" id="c1"  style="display:none">💀</div>
+  <div class="corner c-tr" id="c2"  style="display:none">🔥</div>
+  <div class="corner c-bl" id="c3"  style="display:none">💥</div>
+  <div class="corner c-br" id="c4"  style="display:none">🤡</div>
+  <div class="marquee-wrap mq-top" id="mqTop" style="display:none">
+    <span class="mq-text" style="color:#ff0">🔥 ЧЕЛЕНДЖ АКТИВОВАНО 🔥 &nbsp; 💀 ЛИШЕ СМІЛЬЧАКИ ПРОХОДЯТЬ 💀 &nbsp; 🤡 ТИ ВПОРАЄШСЯ? 🤡 &nbsp; 🔥 ЧЕЛЕНДЖ АКТИВОВАНО 🔥</span>
+  </div>
+  <div class="marquee-wrap mq-bottom" id="mqBot" style="display:none">
+    <span class="mq-text-r" style="color:#0ff">😈 ПОВЕРНЕННЯ НЕМОЖЛИВЕ 😈 &nbsp; 👁️ МИ СПОСТЕРІГАЄМО 👁️ &nbsp; 🎺 ТА-ДА-ДА-ДА 🎺 &nbsp; 😈 ПОВЕРНЕННЯ НЕМОЖЛИВЕ 😈</span>
+  </div>
+
+  <!-- ЕКРАН 0: СТАРТ -->
+  <div class="screen active" id="s0">
+    <div class="card" style="border-color:red;color:red;box-shadow:0 0 60px red;">
+      <h2 style="color:red">⛔ СТОП ⛔</h2>
+      <p>
+        Перед тобою <strong style="color:#ff4">НАЙЛЕГШИЙ ЧЕЛЕНДЖ В ІНТЕРНЕТІ</strong>™<br><br>
+        Всього 5 рівнів.<br>
+        Але ніхто ще не пройшов.<br><br>
+        <span style="color:#aaa;font-size:18px">(Ну, майже ніхто. Мабуть. Не знаємо.)</span>
+      </p>
+      <button class="btn btn-red" onclick="startGame()">😈 ПРИЙНЯТИ ВИКЛИК</button><br>
+      <button class="btn btn-blue" id="cowardBtn" onmouseenter="moveCoward()" onclick="moveCoward()">😇 Я БОЯГУЗ</button>
+    </div>
+  </div>
+
+  <!-- ЕКРАН 1: ЛОВИ КНОПКУ -->
+  <div class="screen" id="s1">
+    <div id="catch-counter" style="display:none"></div>
+    <div id="lvl1-hint">Злови кнопку <strong>5 разів</strong>!</div>
+    <button id="escape-btn" onclick="catchBtn()">🏃 ЗЛОВИ МЕНЕ!</button>
+  </div>
+
+  <!-- ЕКРАН 2: ТЕСТ -->
+  <div class="screen" id="s2">
+    <div class="card" style="border-color:#00ffff;color:#00ffff;">
+      <h2 style="color:#0ff">🧠 РІВЕНЬ 2: ТЕСТ</h2>
+      <p id="question-text"></p>
+      <div class="answers" id="answers"></div>
+    </div>
+  </div>
+
+  <!-- ЕКРАН 3: ВИЖИВИ -->
+  <div class="screen" id="s3">
+    <div id="survive-timer">10</div>
+    <div id="survive-hint">Просто <strong>ВИЖИВИ</strong> 10 секунд 😈</div>
+  </div>
+
+  <!-- ЕКРАН 4: ЗНАЙДИ АЛМАЗ -->
+  <div class="screen" id="s4">
+    <div id="gem-title">💎 Знайди справжній алмаз! Решта — фейк 💎</div>
+    <div id="gem-grid"></div>
+  </div>
+
+  <!-- ЕКРАН 5: РЕАКЦІЯ -->
+  <div class="screen" id="s5">
+    <div id="react-hint">Натисни ТІЛЬКИ коли з'явиться 🟢<br><span style="color:#f88">Не натискай на 🔴 — це пастка!</span></div>
+    <div id="react-circle"></div>
+    <div id="react-msg"  style="display:none"></div>
+    <div id="react-score">Раунд 1 / 5</div>
+  </div>
+
+  <!-- ФІНАЛ -->
+  <div class="screen" id="final">
+    <div class="card" style="border-color:gold;color:gold;box-shadow:0 0 80px gold;">
+      <h2 style="color:gold;animation:none;font-size:50px;">🏆 ТИ ЗРОБИВ ЦЕ! 🏆</h2>
+      <p>
+        Ти пройшов усі 5 рівнів.<br>
+        Ти легенда. Твоя нагорода — <strong style="color:#ff0">ПРЕЗЕНТАЦІЯ</strong> 🎁
+      </p>
+      <a class="prize-link" href="https://www.canva.com/design/DAHBSsGhHBs/HYu_sFh0c0e9Gegp4IzMag/edit" target="_blank">
+        🎊 ОТРИМАТИ НАГОРОДУ 🎊
+      </a><br><br>
+      <button class="btn btn-red" onclick="location.reload()">🔄 Ще раз (навіщо?)</button>
+    </div>
+  </div>
+
+<script>
+// ==================== МУЗИКА (Web Audio API) ====================
+let audioCtx, musicOn = false, musicNodes = [];
+
+function initAudio() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+// Епічна мелодія — ноти в Гц
+const epicMelody = [
+  196,196,196,147,175,196,220,196,175,196,
+  262,262,247,220,196,175,147,131,
+  196,220,247,262,294,330,349,330,
+  294,262,220,196,175,147,131,196
+];
+const drumPattern = [1,0,0,0,1,0,1,0]; // kick pattern
+
+let melodyStep = 0, drumStep = 0, tempoMs = 180;
+let melodyLoop, drumLoop;
+
+function playNote(freq, duration, type='sine', vol=0.25) {
+  if (!audioCtx || !musicOn) return;
+  const osc   = audioCtx.createOscillator();
+  const gain  = audioCtx.createGain();
+  const filt  = audioCtx.createBiquadFilter();
+  filt.type = 'lowpass'; filt.frequency.value = 3000;
+  osc.connect(filt); filt.connect(gain); gain.connect(audioCtx.destination);
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.start(); osc.stop(audioCtx.currentTime + duration);
+  musicNodes.push(osc);
+}
+
+function playDrum() {
+  if (!audioCtx || !musicOn) return;
+  // Kick
+  const osc  = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+  gain.gain.setValueAtTime(0.7, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+  osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+  // Hat
+  const buf  = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.05, audioCtx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i=0; i<data.length; i++) data[i] = Math.random()*2-1;
+  const src  = audioCtx.createBufferSource();
+  const filt = audioCtx.createBiquadFilter();
+  const hgain= audioCtx.createGain();
+  src.buffer = buf; filt.type='highpass'; filt.frequency.value=8000;
+  src.connect(filt); filt.connect(hgain); hgain.connect(audioCtx.destination);
+  hgain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+  hgain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.05);
+  src.start();
+}
+
+function playChord(freqs) {
+  freqs.forEach(f => playNote(f, 0.6, 'sawtooth', 0.08));
+}
+
+const chords = [[131,165,196],[117,147,175],[98,131,165],[110,138,165]];
+let chordStep = 0, chordLoop;
+
+function startMusic() {
+  if (!audioCtx) return;
+  musicOn = true;
+  document.getElementById('music-btn').textContent = '🔊 Музика';
+
+  melodyLoop = setInterval(() => {
+    if (!musicOn) return;
+    const note = epicMelody[melodyStep % epicMelody.length];
+    playNote(note * 2, 0.22, 'square', 0.18);     // основна мелодія
+    playNote(note,     0.22, 'triangle', 0.10);   // октава нижче
+    melodyStep++;
+  }, tempoMs);
+
+  drumLoop = setInterval(() => {
+    if (!musicOn) return;
+    if (drumPattern[drumStep % drumPattern.length]) playDrum();
+    drumStep++;
+  }, tempoMs / 2);
+
+  chordLoop = setInterval(() => {
+    if (!musicOn) return;
+    playChord(chords[chordStep % chords.length]);
+    chordStep++;
+  }, tempoMs * 4);
+}
+
+function stopMusic() {
+  musicOn = false;
+  clearInterval(melodyLoop);
+  clearInterval(drumLoop);
+  clearInterval(chordLoop);
+  document.getElementById('music-btn').textContent = '🔇 Музика';
+}
+
+function toggleMusic() {
+  initAudio();
+  if (musicOn) stopMusic(); else startMusic();
+}
+
+// Переможна фанфара
+function playVictoryFanfare() {
+  if (!audioCtx) return;
+  const fanfare = [523,659,784,1047,784,659,523];
+  fanfare.forEach((f,i) => {
+    setTimeout(() => {
+      playNote(f, 0.3, 'square', 0.3);
+      playNote(f/2, 0.3, 'sawtooth', 0.15);
+    }, i*150);
+  });
+}
+
+// Звук помилки
+function playWrong() {
+  if (!audioCtx) return;
+  playNote(100, 0.4, 'sawtooth', 0.3);
+  setTimeout(() => playNote(80, 0.4, 'sawtooth', 0.3), 150);
+}
+
+// ==================== CURSOR ====================
+const cursorEmojis = ['💣','🔥','💀','🤡','👹','😈','💥','🎃','👁️','🌪️'];
+let ce = 0;
+document.addEventListener('mousemove', e => {
+  const c = document.getElementById('cursor');
+  c.style.left = e.clientX + 'px';
+  c.style.top  = e.clientY + 'px';
+});
+setInterval(() => {
+  document.getElementById('cursor').textContent = cursorEmojis[ce++ % cursorEmojis.length];
+}, 350);
+
+// ==================== BOOM ====================
+document.addEventListener('click', e => spawnBoom(e.clientX, e.clientY));
+function spawnBoom(x, y, count=3) {
+  const emojis = ['💥','🔥','⚡','✨','💫'];
+  for (let i=0; i<count; i++) {
+    const el = document.createElement('div');
+    el.className = 'boom';
+    el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    el.style.fontSize = (30+Math.random()*30)+'px';
+    el.style.left = (x+(Math.random()-.5)*80)+'px';
+    el.style.top  = (y+(Math.random()-.5)*80)+'px';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 750);
+  }
+}
+
+// ==================== FLOATERS ====================
+const floatPool = ['🤡','💀','🔥','😈','👻','💥','🎺','🐸','👁️','🧨','🤪','😱','🦆','🚀'];
+let floatInterval;
+function startFloaters() {
+  floatInterval = setInterval(() => {
+    const el = document.createElement('div');
+    el.className = 'floater';
+    el.textContent = floatPool[Math.floor(Math.random()*floatPool.length)];
+    el.style.fontSize = (40+Math.random()*50)+'px';
+    el.style.left = Math.random()*window.innerWidth+'px';
+    el.style.top  = (window.innerHeight-50)+'px';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 1600);
+  }, 250);
+}
+
+// ==================== POPUPS ====================
+const popupTexts = [
+  '🎉 ТИ ВИГРАВ BMW!','⚠️ ВІРУС ЗНАЙДЕНО!','👽 БРАТ, ПИШИ В ТГ',
+  '🍕 ХОЧЕШ ПІЦУ?','💰 ВІДПРАВ 1₴','🤖 Я ЗА ТОБОЮ СТЕЖУ',
+  '😱 ЩО ТИ РОБИШ??','🐸 КВА-КВА-КВА','🎸 РОКЕНРОЛ!',
+  '💀 РОЗСЛАБСЯ, ВСЕ ДОБРЕ','🧃 ХОЧЕШ СОКУ?','🕵️ ХТО ТАМ?'
+];
+let popupInterval;
+function startPopups(ms=1800) {
+  clearInterval(popupInterval);
+  popupInterval = setInterval(() => {
+    const el = document.createElement('div');
+    el.className = 'popup';
+    el.textContent = popupTexts[Math.floor(Math.random()*popupTexts.length)];
+    el.style.left = (60+Math.random()*(window.innerWidth-280))+'px';
+    el.style.top  = (60+Math.random()*(window.innerHeight-160))+'px';
+    el.onclick = ()=>el.remove();
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 2500);
+  }, ms);
+}
+
+let autoBoom;
+function startAutoBoom(ms=700) {
+  clearInterval(autoBoom);
+  autoBoom = setInterval(() => spawnBoom(Math.random()*window.innerWidth, Math.random()*window.innerHeight, 2), ms);
+}
+
+// ==================== PROGRESS ====================
+const TOTAL = 5;
+function setProgress(lvl) {
+  document.getElementById('progress-bar').style.width = (lvl/TOTAL*100)+'%';
+  document.getElementById('level-label').textContent  = `Рівень ${lvl} / ${TOTAL}`;
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showBackground() {
+  ['bg','c1','c2','c3','c4','mqTop','mqBot'].forEach(id=>document.getElementById(id).style.display='');
+  startFloaters(); startPopups(); startAutoBoom();
+  document.getElementById('music-btn').style.display = '';
+}
+
+// ==================== СТАРТ ====================
+function startGame() {
+  initAudio();
+  startMusic();
+  showBackground();
+  setProgress(0);
+  startLevel1();
+}
+
+function moveCoward() {
+  const btn = document.getElementById('cowardBtn');
+  btn.style.position = 'fixed';
+  btn.style.left = Math.random()*(window.innerWidth-200)+'px';
+  btn.style.top  = Math.random()*(window.innerHeight-80)+'px';
+}
+
+// ==================== РІВЕНЬ 1: ЛОВИ КНОПКУ ====================
+let catchCount = 0;
+function startLevel1() {
+  showScreen('s1');
+  catchCount = 0;
+  updateCatchHint();
+  moveEscapeBtn();
+}
+function moveEscapeBtn() {
+  const btn = document.getElementById('escape-btn');
+  const m = 100;
+  btn.style.left = (m+Math.random()*(window.innerWidth -2*m-220))+'px';
+  btn.style.top  = (m+Math.random()*(window.innerHeight-2*m-80))+'px';
+}
+document.addEventListener('mousemove', e => {
+  const btn = document.getElementById('escape-btn');
+  if (!btn || !document.getElementById('s1').classList.contains('active')) return;
+  const r = btn.getBoundingClientRect();
+  if (Math.hypot(e.clientX-r.left-r.width/2, e.clientY-r.top-r.height/2) < 80) moveEscapeBtn();
+});
+function updateCatchHint() {
+  const left = 5-catchCount;
+  document.getElementById('lvl1-hint').innerHTML = left>0 ? `Злови кнопку ще <strong>${left}</strong> ${left===1?'раз':'рази'}!` : '';
+}
+function catchBtn() {
+  catchCount++;
+  const counter = document.getElementById('catch-counter');
+  counter.style.display = 'block';
+  counter.textContent = ['🎯 +1!','😤 НЕ ТАК ЛЕГКО!','👀 О ЯК?!','💪 МАЙЖЕ!','🏆 ОСТАННІЙ!'][Math.min(catchCount-1,4)];
+  setTimeout(()=>counter.style.display='none', 800);
+  if (catchCount >= 5) setTimeout(startLevel2, 800);
+  else { updateCatchHint(); moveEscapeBtn(); }
+}
+
+// ==================== РІВЕНЬ 2: ТЕСТ ====================
+const questions = [
+  { q:'🤔 Скільки буде 2 + 2?', answers:[{text:'🐟 Риба',right:false},{text:'4',right:true},{text:'🌈 Зелений',right:false},{text:'Четвер',right:false}] },
+  { q:'🌍 Яка столиця України?', answers:[{text:'Лондон',right:false},{text:'Марс',right:false},{text:'Київ',right:true},{text:'Майнкрафт',right:false}] },
+  { q:'🎨 Який колір неба вдень?', answers:[{text:'Блакитний',right:true},{text:'Кефір',right:false},{text:'±404',right:false},{text:'Трикутний',right:false}] },
+];
+let qIndex = 0;
+function startLevel2() {
+  setProgress(1); qIndex = 0; showScreen('s2'); showQuestion();
+}
+function showQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('question-text').textContent = q.q;
+  const container = document.getElementById('answers');
+  container.innerHTML = '';
+  [...q.answers].sort(()=>Math.random()-.5).forEach(a => {
+    const btn = document.createElement('button');
+    btn.className = 'ans-btn';
+    btn.textContent = a.text;
+    btn.onclick = () => answerClicked(btn, a.right, container, q);
+    container.appendChild(btn);
+  });
+}
+function answerClicked(btn, isRight, container, q) {
+  container.querySelectorAll('.ans-btn').forEach(b=>b.onclick=null);
+  if (isRight) {
+    btn.classList.add('right');
+    qIndex++;
+    if (qIndex >= questions.length) setTimeout(startLevel3, 900);
+    else setTimeout(showQuestion, 900);
+  } else {
+    btn.classList.add('wrong');
+    playWrong();
+    spawnBoom(window.innerWidth/2, window.innerHeight/2, 5);
+    setTimeout(() => {
+      container.querySelectorAll('.ans-btn').forEach(b=>{
+        b.classList.remove('wrong','right');
+        const found = q.answers.find(a=>a.text===b.textContent);
+        b.onclick = () => answerClicked(b, found?.right||false, container, q);
+      });
+    }, 700);
+  }
+}
+
+// ==================== РІВЕНЬ 3: ВИЖИВИ ====================
+let surviveTimer;
+function startLevel3() {
+  setProgress(2); showScreen('s3');
+  let t = 10;
+  document.getElementById('survive-timer').textContent = t;
+  document.getElementById('survive-timer').style.color = 'white';
+  startPopups(600);
+  startAutoBoom(300);
+  surviveTimer = setInterval(() => {
+    t--;
+    const el = document.getElementById('survive-timer');
+    el.textContent = t;
+    if (t <= 3) el.style.color = 'red';
+    if (t <= 0) { clearInterval(surviveTimer); setTimeout(startLevel4, 500); }
+  }, 1000);
+}
+
+// ==================== РІВЕНЬ 4: ЗНАЙДИ АЛМАЗ ====================
+const fakeEmojis = ['🔷','🔹','💠','🔶','🔸','🔲','🔳','⬛','⬜','🟦','🟪','🟥'];
+let gemRound = 0, totalGemRounds = 3;
+
+function startLevel4() {
+  setProgress(3); gemRound = 0;
+  startPopups(1800); startAutoBoom(700);
+  showScreen('s4');
+  nextGemRound();
+}
+
+function nextGemRound() {
+  if (gemRound >= totalGemRounds) { setTimeout(startLevel5, 500); return; }
+  gemRound++;
+  document.getElementById('gem-title').textContent = `💎 Знайди справжній алмаз! (${gemRound}/${totalGemRounds})`;
+
+  // Сітка 5x4 = 20 клітинок
+  const cols = 5, rows = 4, total = cols * rows;
+  const grid = document.getElementById('gem-grid');
+  grid.style.gridTemplateColumns = `repeat(${cols},1fr)`;
+  grid.innerHTML = '';
+
+  const gemPos = Math.floor(Math.random() * total);
+  for (let i=0; i<total; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'gem-cell';
+    cell.textContent = (i === gemPos) ? '💎' : fakeEmojis[Math.floor(Math.random()*fakeEmojis.length)];
+    cell.onclick = () => gemClicked(cell, i === gemPos);
+    grid.appendChild(cell);
+  }
+}
+
+function gemClicked(cell, isGem) {
+  document.getElementById('gem-grid').querySelectorAll('.gem-cell').forEach(c=>c.onclick=null);
+  if (isGem) {
+    cell.classList.add('right-gem');
+    spawnBoom(window.innerWidth/2, window.innerHeight/2, 8);
+    setTimeout(nextGemRound, 1000);
+  } else {
+    cell.classList.add('wrong-gem');
+    playWrong();
+    setTimeout(() => nextGemRound(), 700);
+  }
+}
+
+// ==================== РІВЕНЬ 5: РЕАКЦІЯ ====================
+let reactRound = 0, reactTotal = 5, reactActive = false, reactTimeout, reactCorrect = 0;
+
+function startLevel5() {
+  setProgress(4); reactRound = 0; reactCorrect = 0; reactActive = false;
+  showScreen('s5');
+  document.getElementById('react-msg').style.display = 'none';
+  document.getElementById('react-circle').style.pointerEvents = 'none';
+  document.getElementById('react-circle').textContent = '';
+  updateReactScore();
+  setTimeout(nextReact, 1500);
+}
+
+function updateReactScore() {
+  document.getElementById('react-score').textContent = `Раунд ${reactRound+1} / ${reactTotal} | ✅ ${reactCorrect}`;
+}
+
+function nextReact() {
+  if (reactRound >= reactTotal) { finishReact(); return; }
+  const isGreen = Math.random() > 0.4; // 60% зелений
+  const delay   = 800 + Math.random()*2000;
+  const circle  = document.getElementById('react-circle');
+
+  circle.textContent = '';
+  circle.style.pointerEvents = 'none';
+  reactActive = false;
+
+  reactTimeout = setTimeout(() => {
+    circle.textContent = isGreen ? '🟢' : '🔴';
+    circle.style.pointerEvents = 'auto';
+    reactActive = true;
+
+    // onclick
+    circle.onclick = () => {
+      if (!reactActive) return;
+      reactActive = false;
+      circle.style.pointerEvents = 'none';
+      clearTimeout(reactTimeout);
+
+      if (isGreen) {
+        reactCorrect++;
+        showReactMsg('✅ ТАК!', 'lime');
+        spawnBoom(window.innerWidth/2, window.innerHeight/2, 4);
+      } else {
+        showReactMsg('❌ ПАСТКА!', 'red');
+        playWrong();
+        spawnBoom(window.innerWidth/2, window.innerHeight/2, 6);
+      }
+      reactRound++;
+      updateReactScore();
+      setTimeout(nextReact, 1200);
+    };
+
+    // Якщо не натиснули за 1.5с — теж рахуємо
+    reactTimeout = setTimeout(() => {
+      if (!reactActive) return;
+      reactActive = false;
+      circle.style.pointerEvents = 'none';
+      if (!isGreen) {
+        // Не натиснув на 🔴 — правильно!
+        reactCorrect++;
+        showReactMsg('😎 МОЛОДЕЦЬ!', 'cyan');
+      } else {
+        showReactMsg('⏰ ПРОПУСТИВ!', 'orange');
+      }
+      reactRound++;
+      updateReactScore();
+      circle.textContent = '';
+      setTimeout(nextReact, 1000);
+    }, 1500);
+
+  }, delay);
+}
+
+function showReactMsg(text, color) {
+  const el = document.getElementById('react-msg');
+  el.textContent = text;
+  el.style.color = color;
+  el.style.textShadow = `0 0 30px ${color}`;
+  el.style.display = 'block';
+  setTimeout(()=>el.style.display='none', 900);
+}
+
+function finishReact() {
+  clearTimeout(reactTimeout);
+  // Потрібно набрати хоча б 3 з 5
+  if (reactCorrect >= 3) {
+    setTimeout(showFinal, 500);
+  } else {
+    // Рестарт рівня
+    document.getElementById('react-hint').innerHTML =
+      `Недостатньо! ${reactCorrect}/5. Спробуй ще!<br><span style="color:#f88">Натисни 🟢 — не натискай 🔴</span>`;
+    setTimeout(startLevel5, 1500);
+  }
+}
+
+// ==================== ФІНАЛ ====================
+function showFinal() {
+  setProgress(5);
+  clearInterval(floatInterval); clearInterval(popupInterval); clearInterval(autoBoom);
+  clearTimeout(reactTimeout);
+  document.querySelectorAll('.popup').forEach(p=>p.remove());
+  stopMusic();
+  playVictoryFanfare();
+  for (let i=0; i<25; i++) setTimeout(()=>spawnBoom(Math.random()*window.innerWidth,Math.random()*window.innerHeight,5), i*80);
+  showScreen('final');
+}
+</script>
+</body>
+</html>
