@@ -357,164 +357,140 @@ function startLevel4(){ setProgress(3); clicks=0; showScreen('s4'); document.get
 function clickerClick(){ if(!document.getElementById('s4').classList.contains('active'))return; clicks++; document.getElementById('clicker-count').textContent=clicks; boom(window.innerWidth/2,window.innerHeight/2,2); if(clicks>=30){ clearInterval(clickInterval); setTimeout(startLevel5,400); } }
 function failClicker(){ document.getElementById('clicker-count').style.color='red'; setTimeout(()=>{ document.getElementById('clicker-count').style.color='white'; startLevel4(); },1200); }
 
-// ====== LVL5: ВИЖИВИ (15 сек, АБСОЛЮТНИЙ ХАОС) ======
-let surviveI, surviveExtraI=[];
+// ====== ГЛОБАЛЬНА ЧИСТКА ВСІХ ІНТЕРВАЛІВ ======
+let activeIntervals=[];
+function killAll(){
+  activeIntervals.forEach(i=>clearInterval(i));
+  activeIntervals=[];
+  clearInterval(floatI); clearInterval(popupI); clearInterval(autoBoomI);
+  document.body.style.transform='';
+  document.body.style.filter='';
+  const bg=document.getElementById('bg');
+  if(bg) bg.style.animationDuration='';
+  document.querySelectorAll('.popup,.floater,.boom').forEach(e=>e.remove());
+}
+
+// ====== LVL5: ВИЖИВИ 15 СЕК ======
 function startLevel5(){
-  setProgress(4); showScreen('s5'); let t=15;
-  document.getElementById('survive-timer').textContent=t;
-  document.getElementById('survive-timer').style.color='white';
+  setProgress(4); showScreen('s5');
+  let t=15;
+  const timer=document.getElementById('survive-timer');
+  timer.textContent=t; timer.style.color='white';
+  timer.style.left='50%'; timer.style.top='50%';
   document.getElementById('survive-hint').textContent='ВИЖИВИ 15 секунд 😈';
 
-  // Попапи кожні 300мс
   startPopups(300);
-  // Вибухи кожні 150мс
   startAutoBoom(150);
 
-  // Тряска екрана
-  const shakeI=setInterval(()=>{
+  activeIntervals.push(setInterval(()=>{
     document.body.style.transform=`translate(${(Math.random()-.5)*14}px,${(Math.random()-.5)*14}px)`;
-  },60);
-  surviveExtraI.push(shakeI);
-
-  // Мерехтіння фону (змінюємо швидкість анімації)
-  const flashI=setInterval(()=>{
-    const bg=document.getElementById('bg');
-    if(bg) bg.style.animationDuration=(0.1+Math.random()*.3)+'s';
-  },200);
-  surviveExtraI.push(flashI);
-
-  // Гігантські літаючі емодзі (у 3 рази більші)
-  const bigI=setInterval(()=>{
-    const el=document.createElement('div');
-    el.className='floater';
+  },60));
+  activeIntervals.push(setInterval(()=>{
+    document.body.style.filter=`invert(1) hue-rotate(${Math.random()*360}deg)`;
+    setTimeout(()=>{ if(document.getElementById('s5').classList.contains('active')) document.body.style.filter=''; },120);
+  },600));
+  activeIntervals.push(setInterval(()=>{
+    const el=document.createElement('div'); el.className='floater';
     el.textContent=FP[Math.floor(Math.random()*FP.length)];
     el.style.fontSize=(100+Math.random()*80)+'px';
     el.style.left=Math.random()*window.innerWidth+'px';
-    el.style.top=(window.innerHeight-100)+'px';
+    el.style.top=window.innerHeight+'px';
     el.style.zIndex=600;
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),1500);
-  },350);
-  surviveExtraI.push(bigI);
+    document.body.appendChild(el); setTimeout(()=>el.remove(),1600);
+  },350));
+  activeIntervals.push(setInterval(()=>{
+    timer.style.left=(20+Math.random()*60)+'%';
+    timer.style.top=(20+Math.random()*60)+'%';
+  },500));
 
-  // Інвертування кольорів час від часу
-  const invertI=setInterval(()=>{
-    document.body.style.filter=`invert(1) hue-rotate(${Math.random()*360}deg)`;
-    setTimeout(()=>document.body.style.filter='',120);
-  },600);
-  surviveExtraI.push(invertI);
-
-  // Рухомий таймер
-  const moveTimerI=setInterval(()=>{
-    const el=document.getElementById('survive-timer');
-    el.style.left=(20+Math.random()*60)+'%';
-    el.style.top=(20+Math.random()*60)+'%';
-  },500);
-  surviveExtraI.push(moveTimerI);
-
-  surviveI=setInterval(()=>{
+  const countdown=setInterval(()=>{
     t--;
-    const el=document.getElementById('survive-timer');
-    el.textContent=t;
-    if(t<=5) el.style.color='red';
+    timer.textContent=t;
+    if(t<=5) timer.style.color='red';
     if(t<=0){
-      clearInterval(surviveI);
-      surviveExtraI.forEach(i=>clearInterval(i));
-      surviveExtraI=[];
-      document.body.style.transform='';
-      document.body.style.filter='';
-      document.getElementById('survive-timer').style.left='50%';
-      document.getElementById('survive-timer').style.top='50%';
-      document.getElementById('bg').style.animationDuration='';
-      setTimeout(startLevel6,400);
+      clearInterval(countdown);
+      killAll();
+      startLevel6();
     }
   },1000);
+  activeIntervals.push(countdown);
 }
 
-
 // ====== LVL6: ГОТОВИЙ? ======
-function startLevel6(){ setProgress(5); showScreen('s6'); }
+function startLevel6(){
+  setProgress(5);
+  showScreen('s6');
+  startFloaters();
+  startPopups(1800);
+  startAutoBoom(700);
+}
 
-// ====== LVL7: ФІНАЛЬНИЙ ХАОС (15 сек, ПОВНИЙ ТРЕШ) ======
-let chaos2I, chaos2Extra=[];
+// ====== LVL7: ФІНАЛЬНИЙ ХАОС 15 СЕК ======
 const CHAOS_MSGS=['💀 ТИ МАЙЖЕ ЗДОХ!','🔥 ГОРИТЬ ВСЕ!','😈 НЕМАЄ ВИХОДУ!','🤡 ХА-ХА-ХА!','👁️ МИ ТЕБЕ БАЧИМО!','🚨 ТРИВОГА!!!','💥 ВИБУХ!!!','🧠 МОЗОК ПЛАВИТЬСЯ!'];
 function startChaos(){
-  setProgress(6); showScreen('s7'); let t=15;
-  const timerEl=document.getElementById('chaos2-timer');
-  const msgEl=document.getElementById('chaos2-msg');
-  timerEl.textContent=t; timerEl.style.color='white';
+  killAll();
+  setProgress(6); showScreen('s7');
+  let t=15;
+  const timer=document.getElementById('chaos2-timer');
+  const msg=document.getElementById('chaos2-msg');
+  timer.textContent=t; timer.style.color='white';
+  timer.style.left='50%'; timer.style.top='50%';
+  msg.textContent='💀 ВИЖИВИ 15 СЕКУНД! 💀';
 
-  // Ще швидші попапи і вибухи
   startPopups(200);
   startAutoBoom(80);
 
-  // Тряска сильніша
-  const shakeI=setInterval(()=>{
+  activeIntervals.push(setInterval(()=>{
     document.body.style.transform=`translate(${(Math.random()-.5)*22}px,${(Math.random()-.5)*22}px) rotate(${(Math.random()-.5)*3}deg)`;
-  },50);
-  chaos2Extra.push(shakeI);
-
-  // Мінливий фон
-  const flashI=setInterval(()=>{
-    const bg=document.getElementById('bg');
-    if(bg) bg.style.animationDuration=(0.05+Math.random()*.15)+'s';
-  },100);
-  chaos2Extra.push(flashI);
-
-  // Гігантські емодзі
-  const bigI=setInterval(()=>{
+  },50));
+  activeIntervals.push(setInterval(()=>{
+    document.body.style.filter=`invert(1) hue-rotate(${Math.random()*360}deg) saturate(${2+Math.random()*5})`;
+    setTimeout(()=>document.body.style.filter='',80);
+  },250));
+  activeIntervals.push(setInterval(()=>{
     const el=document.createElement('div'); el.className='floater';
     el.textContent=FP[Math.floor(Math.random()*FP.length)];
     el.style.fontSize=(120+Math.random()*120)+'px';
     el.style.left=Math.random()*window.innerWidth+'px';
-    el.style.top=(window.innerHeight-100)+'px';
+    el.style.top=window.innerHeight+'px';
     el.style.zIndex=600;
     document.body.appendChild(el); setTimeout(()=>el.remove(),1500);
-  },200);
-  chaos2Extra.push(bigI);
+  },200));
+  activeIntervals.push(setInterval(()=>{
+    timer.style.left=(10+Math.random()*70)+'%';
+    timer.style.top=(15+Math.random()*65)+'%';
+  },400));
+  activeIntervals.push(setInterval(()=>{
+    msg.textContent=CHAOS_MSGS[Math.floor(Math.random()*CHAOS_MSGS.length)];
+    msg.style.left=(5+Math.random()*60)+'%';
+    msg.style.top=(5+Math.random()*25)+'%';
+    msg.style.color=['#ff0','#f0f','#0ff','#f00','#0f0'][Math.floor(Math.random()*5)];
+  },400));
 
-  // Постійне інвертування
-  const invertI=setInterval(()=>{
-    document.body.style.filter=`invert(1) hue-rotate(${Math.random()*360}deg) saturate(${2+Math.random()*5})`;
-    setTimeout(()=>document.body.style.filter='',80);
-  },300);
-  chaos2Extra.push(invertI);
-
-  // Рухомий таймер
-  const moveI=setInterval(()=>{
-    timerEl.style.left=(10+Math.random()*70)+'%';
-    timerEl.style.top=(15+Math.random()*65)+'%';
-  },400);
-  chaos2Extra.push(moveI);
-
-  // Змінюємо повідомлення
-  const msgI=setInterval(()=>{
-    msgEl.textContent=CHAOS_MSGS[Math.floor(Math.random()*CHAOS_MSGS.length)];
-    msgEl.style.left=(10+Math.random()*60)+'%';
-    msgEl.style.top=(5+Math.random()*20)+'%';
-    msgEl.style.color=['#ff0','#f0f','#0ff','#f00','#0f0'][Math.floor(Math.random()*5)];
-  },500);
-  chaos2Extra.push(msgI);
-
-  chaos2I=setInterval(()=>{
+  const countdown=setInterval(()=>{
     t--;
-    timerEl.textContent=t;
-    if(t<=5) timerEl.style.color='red';
+    timer.textContent=t;
+    if(t<=5) timer.style.color='red';
     if(t<=0){
-      clearInterval(chaos2I);
-      chaos2Extra.forEach(i=>clearInterval(i));
-      chaos2Extra=[];
-      document.body.style.transform='';
-      document.body.style.filter='';
-      document.getElementById('bg').style.animationDuration='';
-      timerEl.style.left='50%'; timerEl.style.top='50%';
-      setTimeout(showFinal,400);
+      clearInterval(countdown);
+      killAll();
+      showFinal();
     }
   },1000);
+  activeIntervals.push(countdown);
 }
 
 // ====== ФІНАЛ ======
-function showFinal(){ setProgress(6); clearInterval(floatI);clearInterval(popupI);clearInterval(autoBoomI); clearInterval(surviveI); document.querySelectorAll('.popup').forEach(p=>p.remove()); stopMusic(); playFanfare(); for(let i=0;i<30;i++) setTimeout(()=>boom(Math.random()*window.innerWidth,Math.random()*window.innerHeight,6),i*70); showScreen('final'); }
+function showFinal(){
+  setProgress(6);
+  stopMusic();
+  document.body.style.transform='';
+  document.body.style.filter='';
+  document.querySelectorAll('.popup,.floater,.boom').forEach(e=>e.remove());
+  ['bg','c1','c2','c3','c4','mqTop','mqBot'].forEach(id=>document.getElementById(id).style.display='none');
+  playFanfare();
+  showScreen('final');
+}
 </script>
 </body>
 </html>
