@@ -164,9 +164,18 @@
   </div>
 
 
-  <!-- S6: ФІНАЛЬНИЙ ХАОС -->
+  <!-- S6: ГОТОВИЙ? -->
   <div class="screen" id="s6">
-    <div id="chaos2-msg">💀 ОСТАННІЙ РІВЕНЬ 💀<br>ВИЖИВИ ЩЕ 15 СЕКУНД!</div>
+    <div class="card" style="border-color:#f0f;color:#f0f;box-shadow:0 0 60px #f0f;">
+      <h2 style="color:#f0f">😈 ТИ ГОТОВИЙ? 😈</h2>
+      <p>Останній рівень.<br>Без попереджень.<br><strong style="color:#ff0">Просто натисни кнопку.</strong></p>
+      <button class="btn btn-red" onclick="startChaos()">💀 ГОТОВИЙ!</button>
+    </div>
+  </div>
+
+  <!-- S7: ФІНАЛЬНИЙ ХАОС -->
+  <div class="screen" id="s7">
+    <div id="chaos2-msg"></div>
     <div id="chaos2-timer">15</div>
   </div>
 
@@ -423,11 +432,14 @@ function startLevel5(){
 }
 
 
-// ====== LVL6: ФІНАЛЬНИЙ ХАОС (15 сек, ПОВНИЙ ТРЕШ) ======
+// ====== LVL6: ГОТОВИЙ? ======
+function startLevel6(){ setProgress(5); showScreen('s6'); }
+
+// ====== LVL7: ФІНАЛЬНИЙ ХАОС (15 сек, ПОВНИЙ ТРЕШ) ======
 let chaos2I, chaos2Extra=[];
 const CHAOS_MSGS=['💀 ТИ МАЙЖЕ ЗДОХ!','🔥 ГОРИТЬ ВСЕ!','😈 НЕМАЄ ВИХОДУ!','🤡 ХА-ХА-ХА!','👁️ МИ ТЕБЕ БАЧИМО!','🚨 ТРИВОГА!!!','💥 ВИБУХ!!!','🧠 МОЗОК ПЛАВИТЬСЯ!'];
-function startLevel6(){
-  setProgress(5); showScreen('s6'); let t=15;
+function startChaos(){
+  setProgress(6); showScreen('s7'); let t=15;
   const timerEl=document.getElementById('chaos2-timer');
   const msgEl=document.getElementById('chaos2-msg');
   timerEl.textContent=t; timerEl.style.color='white';
@@ -502,7 +514,7 @@ function startLevel6(){
 }
 
 // ====== ФІНАЛ ======
-function showFinal(){ setProgress(7); clearInterval(floatI);clearInterval(popupI);clearInterval(autoBoomI); clearInterval(surviveI); document.querySelectorAll('.popup').forEach(p=>p.remove()); stopMusic(); playFanfare(); for(let i=0;i<30;i++) setTimeout(()=>boom(Math.random()*window.innerWidth,Math.random()*window.innerHeight,6),i*70); showScreen('final'); }
+function showFinal(){ setProgress(6); clearInterval(floatI);clearInterval(popupI);clearInterval(autoBoomI); clearInterval(surviveI); document.querySelectorAll('.popup').forEach(p=>p.remove()); stopMusic(); playFanfare(); for(let i=0;i<30;i++) setTimeout(()=>boom(Math.random()*window.innerWidth,Math.random()*window.innerHeight,6),i*70); showScreen('final'); }
 </script>
 </body>
 </html>
